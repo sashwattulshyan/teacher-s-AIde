@@ -1,0 +1,606 @@
+/* GradingDashboard.css - Styles for the teacher grading interface */
+
+.grading-dashboard {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* Header */
+.grading-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.grading-header h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.875rem;
+  font-weight: 600;
+}
+
+/* Main container */
+.grading-container {
+  background: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border-primary);
+  overflow: hidden;
+}
+
+/* Students header row */
+.students-header {
+  display: grid;
+  grid-template-columns: 300px repeat(auto-fit, minmax(150px, 1fr));
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-primary);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.lesson-label {
+  padding: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-right: 1px solid var(--border-primary);
+  display: flex;
+  align-items: center;
+}
+
+.student-header {
+  padding: 12px 16px;
+  border-right: 1px solid var(--border-primary);
+  text-align: center;
+}
+
+.student-header:last-child {
+  border-right: none;
+}
+
+.student-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.student-email {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Submissions grid */
+.submissions-grid {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.lesson-row {
+  display: grid;
+  grid-template-columns: 300px repeat(auto-fit, minmax(150px, 1fr));
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.lesson-row:last-child {
+  border-bottom: none;
+}
+
+.lesson-info {
+  padding: 16px;
+  border-right: 1px solid var(--border-primary);
+  background: var(--bg-secondary);
+}
+
+.lesson-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.lesson-type {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.grade-scale-section {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-primary);
+}
+
+.grade-scale-section label {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.grade-scale-input {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.grade-scale-input input {
+  width: 60px;
+  padding: 4px 8px;
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.grade-scale-input input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
+}
+
+.grade-scale-unit {
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.saving-indicator {
+  color: var(--accent-primary);
+  font-size: 0.7rem;
+  font-weight: 500;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.submission-cell {
+  padding: 12px 8px;
+  border-right: 1px solid var(--border-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 60px;
+  transition: all 0.2s ease;
+  gap: 4px;
+}
+
+.submission-cell:last-child {
+  border-right: none;
+}
+
+.submission-cell.submitted,
+.submission-cell.completed,
+.submission-cell.graded {
+  cursor: pointer;
+}
+
+.submission-cell.submitted:hover,
+.submission-cell.completed:hover,
+.submission-cell.graded:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.status-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.grade-display {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 2px;
+}
+
+.grade-button {
+  background: var(--accent-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.grade-button:hover {
+  background: var(--accent-secondary);
+  transform: translateY(-1px);
+}
+
+.grade-button:active {
+  transform: translateY(0);
+}
+
+/* Submission modal */
+.submission-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.submission-modal {
+  background: var(--bg-card);
+  border-radius: 12px;
+  box-shadow: var(--shadow-xl);
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow: hidden;
+  border: 1px solid var(--border-primary);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-primary);
+  background: var(--bg-primary);
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-close:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.modal-content {
+  padding: 24px;
+  max-height: calc(90vh - 80px);
+  overflow-y: auto;
+}
+
+.submission-info {
+  background: var(--bg-primary);
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border-primary);
+}
+
+.submission-info p {
+  margin: 8px 0;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.submission-info strong {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.existing-grade {
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--bg-secondary);
+  border-radius: 6px;
+  border-left: 4px solid var(--accent-primary);
+}
+
+.existing-grade p {
+  margin: 6px 0;
+  font-size: 0.8rem;
+}
+
+.existing-grade strong {
+  color: var(--accent-primary);
+}
+
+.submission-content {
+  margin-bottom: 24px;
+}
+
+.submission-content h4 {
+  margin: 0 0 12px 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.content-display {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.text-content {
+  color: var(--text-primary);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  font-size: 0.875rem;
+}
+
+.quiz-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quiz-answer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.quiz-answer strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.quiz-answer span {
+  color: var(--text-secondary);
+}
+
+.no-content {
+  color: var(--text-secondary);
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-primary);
+}
+
+/* Grading Modal */
+.grading-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.grading-modal {
+  background: var(--bg-card);
+  border-radius: 12px;
+  box-shadow: var(--shadow-xl);
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow: hidden;
+  border: 1px solid var(--border-primary);
+}
+
+.grading-section {
+  margin: 24px 0;
+  padding: 20px;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  border: 1px solid var(--border-primary);
+}
+
+.grading-section h4 {
+  margin: 0 0 16px 0;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.grade-input {
+  margin-bottom: 16px;
+}
+
+.grade-input label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.grade-input input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.grade-input input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.feedback-input label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.feedback-input textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+.feedback-input textarea:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .grading-dashboard {
+    padding: 16px;
+  }
+
+  .students-header,
+  .lesson-row {
+    grid-template-columns: 200px repeat(auto-fit, minmax(120px, 1fr));
+  }
+
+  .lesson-info {
+    padding: 12px;
+  }
+
+  .student-header {
+    padding: 8px 12px;
+  }
+
+  .submission-cell {
+    padding: 8px 4px;
+    min-height: 50px;
+  }
+
+  .status-text {
+    font-size: 0.7rem;
+  }
+
+  .grade-display {
+    font-size: 0.7rem;
+    padding: 1px 4px;
+  }
+
+  .grade-scale-input input {
+    width: 50px;
+    font-size: 0.7rem;
+  }
+
+  .grade-scale-unit {
+    font-size: 0.65rem;
+  }
+
+  .grade-scale-unit {
+    font-size: 0.65rem;
+  }
+
+  .submission-modal {
+    width: 95%;
+    margin: 20px;
+  }
+
+  .modal-content {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .students-header,
+  .lesson-row {
+    grid-template-columns: 150px repeat(auto-fit, minmax(100px, 1fr));
+  }
+
+  .lesson-title {
+    font-size: 0.8rem;
+  }
+
+  .student-name {
+    font-size: 0.8rem;
+  }
+
+  .student-email {
+    font-size: 0.7rem;
+  }
+
+  .grade-scale-section {
+    margin-top: 6px;
+    padding-top: 6px;
+  }
+
+  .grade-scale-section label {
+    font-size: 0.7rem;
+  }
+
+  .grade-scale-input input {
+    width: 45px;
+    padding: 3px 6px;
+    font-size: 0.65rem;
+  }
+
+  .grade-scale-section {
+    margin-top: 6px;
+    padding-top: 6px;
+  }
+
+  .grade-scale-section label {
+    font-size: 0.7rem;
+  }
+}

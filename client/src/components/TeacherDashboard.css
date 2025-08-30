@@ -1,0 +1,125 @@
+/* TeacherDashboard.css - Purple theme styles for the enhanced teacher dashboard */
+
+.teacher-dashboard {
+  min-height: 100vh;
+  background: #ffffff;
+  color: #000000;
+}
+
+.dashboard-header {
+  background: #f8f4ff;
+  padding: 24px 32px;
+  border-bottom: 1px solid #5b21b6;
+  box-shadow: 0 4px 20px rgba(91, 33, 182, 0.1);
+}
+
+.dashboard-header h1 {
+  margin: 0 0 16px 0;
+  color: #000000;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.breadcrumb .separator {
+  color: #9ca3af;
+}
+
+.breadcrumb .clickable {
+  color: #7c3aed;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.breadcrumb .clickable:hover {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.breadcrumb .active {
+  color: #000000;
+  font-weight: 600;
+}
+
+.dashboard-content {
+  padding: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Classroom Header */
+.classroom-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #f8f4ff;
+  border-radius: 8px;
+  border: 1px solid #5b21b6;
+}
+
+.classroom-header h2 {
+  margin: 0;
+  color: #000000;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.classroom-header .btn-primary {
+  background: #7c3aed;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.classroom-header .btn-primary:hover {
+  background: #5b21b6;
+  transform: translateY(-1px);
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.125rem;
+  color: #6b7280;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard-header {
+    padding: 16px 20px;
+  }
+  
+  .dashboard-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .dashboard-content {
+    padding: 20px;
+  }
+  
+  .breadcrumb {
+    font-size: 0.75rem;
+  }
+  
+  .classroom-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+}

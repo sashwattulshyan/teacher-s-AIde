@@ -1,0 +1,131 @@
+/* StudentViewModal.css - Dark theme styles for student view modal */
+
+.student-view-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-overlay, rgba(0, 0, 0, 0.8));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+
+.student-view-modal {
+  background: var(--bg-card, #1a1a1a);
+  border-radius: 16px;
+  box-shadow: var(--shadow-xl, 0 25px 50px rgba(0, 0, 0, 0.5));
+  width: 100%;
+  max-width: 1200px;
+  max-height: 90vh;
+  overflow: hidden;
+  border: 1px solid var(--border-primary, #333333);
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-primary, #333333);
+  background: var(--bg-secondary, #2a2a2a);
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: var(--text-primary, #ffffff);
+  font-size: 1.25rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary, #cccccc);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+  background: var(--bg-primary, #1a1a1a);
+  color: var(--text-primary, #ffffff);
+}
+
+.modal-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+  background: var(--bg-primary, #1a1a1a);
+}
+
+.preview-notice {
+  background: var(--accent-primary, #007bff);
+  color: white;
+  padding: 1rem;
+  margin: 0;
+  text-align: center;
+  border-bottom: 1px solid var(--border-primary, #333333);
+}
+
+.preview-notice p {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-primary, #333333);
+  background: var(--bg-secondary, #2a2a2a);
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.modal-footer .btn-secondary {
+  background: var(--bg-primary, #1a1a1a);
+  color: var(--text-primary, #ffffff);
+  border: 1px solid var(--border-primary, #333333);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.modal-footer .btn-secondary:hover {
+  background: var(--bg-secondary, #2a2a2a);
+  color: var(--text-primary, #ffffff);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .student-view-modal {
+    max-width: 100%;
+    margin: 10px;
+  }
+  
+  .modal-header {
+    padding: 1rem;
+  }
+  
+  .modal-header h3 {
+    font-size: 1.125rem;
+  }
+  
+  .modal-footer {
+    padding: 1rem;
+  }
+}

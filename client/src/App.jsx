@@ -1,0 +1,446 @@
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { auth, db } from './firebase';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import TeacherDashboard from './components/TeacherDashboard';
+import JoinClassroom from './components/JoinClassroom';
+import StudentDashboard from "./components/StudentDashboard";
+import StudentProgress from "./components/StudentProgress";
+import LandingPage from './components/LandingPage';
+import AuthPage from './components/AuthPage';
+import SettingsDropdown from './components/SettingsDropdown';
+import './App.css';
+
+// Protected Route Component
+const ProtectedRoute = ({ children, requiredRole }) => {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [userRole, setUserRole] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      try {
+        if (user) {
+          setCurrentUser(user);
+          const userDocRef = doc(db, 'users', user.uid);
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {
+            setUserRole(userDoc.data().role);
+          }
+        } else {
+          setCurrentUser(null);
+          setUserRole('');
+        }
+      } catch (error) {
+        console.error("Error in onAuthStateChanged:", error);
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  if (!currentUser) {
+    return <Navigate to="/signin" replace />;
+  }
+
+  if (requiredRole && userRole !== requiredRole) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+};
+
+// Dashboard Layout Component
+const DashboardLayout = ({ children, userRole, currentUser, onLogout }) => {
+  const [userName, setUserName] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserName = async () => {
+      if (!currentUser) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const displayName = userData.displayName || userData.firstName || userData.email?.split('@')[0] || 'User';
+          setUserName(displayName);
+        } else {
+          setUserName(currentUser.email?.split('@')[0] || 'User');
+        }
+      } catch (error) {
+        console.error('Error fetching user name:', error);
+        setUserName(currentUser.email?.split('@')[0] || 'User');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserName();
+  }, [currentUser]);
+
+  if (!currentUser || loading) {
+    return <div className="loading">Loading user...</div>;
+  }
+
+  return (
+    <div className="dashboard-container">
+      <header className="dashboard-header">
+        <div className="header-content">
+          <div className="user-info">
+            <span className="user-name">{userName}</span>
+            <span className="user-role">({userRole})</span>
+          </div>
+          <div className="header-actions">
+            <SettingsDropdown currentUser={currentUser} />
+            <button className="btn-logout" onClick={onLogout}>Log Out</button>
+          </div>
+        </div>
+      </header>
+      <main className="dashboard-main">
+        {children}
+      </main>
+    </div>
+  );
+};
+
+// Teacher Routes Component
+const TeacherRoutes = () => {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [userRole, setUserRole] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      try {
+        if (user) {
+          setCurrentUser(user);
+          const userDocRef = doc(db, 'users', user.uid);
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {
+            setUserRole(userDoc.data().role);
+          }
+        } else {
+          setCurrentUser(null);
+          setUserRole('');
+        }
+      } catch (error) {
+        console.error("Error in onAuthStateChanged:", error);
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  return (
+    <DashboardLayout userRole={userRole} currentUser={currentUser} onLogout={handleLogout}>
+      <Routes>
+        {/* Teacher Dashboard Routes */}
+        <Route path="/" element={<TeacherDashboard />} />
+        <Route path="/dashboard" element={<Navigate to="/" replace />} />
+        
+        {/* Classroom Management Routes */}
+        <Route path="/classrooms" element={<TeacherDashboard />} />
+        <Route path="/classroom/:classroomId" element={<TeacherDashboard />} />
+        
+        {/* Unit Management Routes */}
+        <Route path="/classroom/:classroomId/units" element={<TeacherDashboard />} />
+        <Route path="/classroom/:classroomId/unit/:unitId" element={<TeacherDashboard />} />
+        
+        {/* Lesson Management Routes */}
+        <Route path="/classroom/:classroomId/unit/:unitId/lessons" element={<TeacherDashboard />} />
+        <Route path="/classroom/:classroomId/unit/:unitId/lesson/:lessonId" element={<TeacherDashboard />} />
+        
+        {/* Analytics Routes */}
+        <Route path="/classroom/:classroomId/analytics" element={<TeacherDashboard />} />
+        <Route path="/classroom/:classroomId/analytics/overview" element={<TeacherDashboard />} />
+        <Route path="/classroom/:classroomId/analytics/unit/:unitId" element={<TeacherDashboard />} />
+        <Route path="/classroom/:classroomId/analytics/student/:studentId" element={<TeacherDashboard />} />
+        
+        {/* Catch all other teacher routes */}
+        <Route path="*" element={<Navigate to="/teacher" replace />} />
+      </Routes>
+    </DashboardLayout>
+  );
+};
+
+// Student Routes Component
+const StudentRoutes = () => {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [userRole, setUserRole] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      try {
+        if (user) {
+          setCurrentUser(user);
+          const userDocRef = doc(db, 'users', user.uid);
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {
+            setUserRole(userDoc.data().role);
+          }
+        } else {
+          setCurrentUser(null);
+          setUserRole('');
+        }
+      } catch (error) {
+        console.error("Error in onAuthStateChanged:", error);
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  return (
+    <DashboardLayout userRole={userRole} currentUser={currentUser} onLogout={handleLogout}>
+      <div className="student-container">
+        <div className="student-sidebar">
+          <JoinClassroom />
+        </div>
+        <div className="student-main">
+          <Routes>
+            {/* Student Dashboard Routes */}
+            <Route path="/" element={<StudentDashboard />} />
+            <Route path="/dashboard" element={<Navigate to="/" replace />} />
+            
+            {/* Classroom Routes */}
+            <Route path="/classrooms" element={<StudentDashboard />} />
+            <Route path="/classroom/:classroomId" element={<StudentDashboard />} />
+            
+            {/* Unit Routes */}
+            <Route path="/classroom/:classroomId/units" element={<StudentDashboard />} />
+            <Route path="/classroom/:classroomId/unit/:unitId" element={<StudentDashboard />} />
+            
+            {/* Lesson Routes */}
+            <Route path="/classroom/:classroomId/unit/:unitId/lessons" element={<StudentDashboard />} />
+            <Route path="/classroom/:classroomId/unit/:unitId/lesson/:lessonId" element={<StudentDashboard />} />
+            
+            {/* Progress Tracking Routes */}
+            <Route path="/classroom/:classroomId/progress" element={<StudentProgress />} />
+            <Route path="/classroom/:classroomId/progress/overview" element={<StudentProgress />} />
+            <Route path="/classroom/:classroomId/progress/unit/:unitId" element={<StudentProgress />} />
+            <Route path="/classroom/:classroomId/progress/unit/:unitId/lesson/:lessonId" element={<StudentProgress />} />
+            
+            {/* Leaderboard Routes */}
+            <Route path="/classroom/:classroomId/leaderboard" element={<StudentDashboard />} />
+            
+            {/* Game Assignment Routes */}
+            <Route path="/classroom/:classroomId/unit/:unitId/game/:gameId" element={<StudentDashboard />} />
+            
+            {/* Catch all other student routes */}
+            <Route path="*" element={<Navigate to="/student" replace />} />
+          </Routes>
+        </div>
+      </div>
+    </DashboardLayout>
+  );
+};
+
+// Main App Component
+function App() {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [userRole, setUserRole] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    try {
+              const unsubscribe = onAuthStateChanged(auth, async (user) => {
+          console.log('Auth state changed in main App:', user ? user.email : 'No user');
+          try {
+            if (user) {
+              setCurrentUser(user);
+              const userDocRef = doc(db, 'users', user.uid);
+              const userDoc = await getDoc(userDocRef);
+              if (userDoc.exists()) {
+                const role = userDoc.data().role;
+                setUserRole(role);
+                console.log('User role set to:', role);
+              } else {
+                // User exists in Firebase Auth but not in Firestore (account was deleted)
+                console.log('User exists in Auth but not in Firestore - signing out');
+                await signOut(auth);
+                setCurrentUser(null);
+                setUserRole('');
+                return; // Don't set loading to false yet, let the auth state change handle it
+              }
+            } else {
+              setCurrentUser(null);
+              setUserRole('');
+              console.log('User logged out, cleared state');
+            }
+          } catch (error) {
+            console.error("Error in onAuthStateChanged:", error);
+            setError(error.message);
+          } finally {
+            setLoading(false);
+          }
+        });
+
+      return () => unsubscribe();
+    } catch (error) {
+      console.error('Error setting up auth listener:', error);
+      setError(error.message);
+      setLoading(false);
+    }
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="loading">
+        <h2>Loading...</h2>
+        <p>Initializing authentication...</p>
+        {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+      </div>
+    );
+  }
+
+  return (
+    <Router>
+      <div className="App">
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={
+            currentUser ? (
+              userRole === 'teacher' ? (
+                <Navigate to="/teacher" replace />
+              ) : userRole === 'student' ? (
+                <Navigate to="/student" replace />
+              ) : (
+                <div style={{ padding: '20px', color: 'white', minHeight: '100vh', background: '#0f172a' }}>
+                  <h2>Loading user role...</h2>
+                  <p>User: {currentUser.email}</p>
+                  <p>Role: {userRole || 'Loading...'}</p>
+                  {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+                  <div style={{ marginTop: '20px' }}>
+                    <button 
+                      onClick={() => window.location.reload()} 
+                      style={{ marginRight: '10px', padding: '10px 20px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                    >
+                      Refresh Page
+                    </button>
+                    <button 
+                      onClick={async () => {
+                        try {
+                          await signOut(auth);
+                          window.location.href = '/';
+                        } catch (error) {
+                          console.error('Error signing out:', error);
+                          window.location.href = '/';
+                        }
+                      }}
+                      style={{ padding: '10px 20px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                </div>
+              )
+            ) : (
+              <LandingPage />
+            )
+          } />
+          
+          {/* Auth Routes */}
+          <Route path="/signup" element={
+            currentUser ? (
+              userRole === 'teacher' ? (
+                <Navigate to="/teacher" replace />
+              ) : userRole === 'student' ? (
+                <Navigate to="/student" replace />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            ) : (
+              <AuthPage initialMode="signup" />
+            )
+          } />
+          <Route path="/signin" element={
+            currentUser ? (
+              userRole === 'teacher' ? (
+                <Navigate to="/teacher" replace />
+              ) : userRole === 'student' ? (
+                <Navigate to="/student" replace />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            ) : (
+              <AuthPage initialMode="signin" />
+            )
+          } />
+          
+          {/* Protected Teacher Routes */}
+          <Route path="/teacher/*" element={
+            <ProtectedRoute requiredRole="teacher">
+              <TeacherRoutes />
+            </ProtectedRoute>
+          } />
+          
+          {/* Protected Student Routes */}
+          <Route path="/student/*" element={
+            <ProtectedRoute requiredRole="student">
+              <StudentRoutes />
+            </ProtectedRoute>
+          } />
+          
+          {/* Catch all other routes */}
+          <Route path="*" element={
+            currentUser ? (
+              userRole === 'teacher' ? (
+                <Navigate to="/teacher" replace />
+              ) : userRole === 'student' ? (
+                <Navigate to="/student" replace />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            ) : (
+              <Navigate to="/" replace />
+            )
+          } />
+        </Routes>
+      </div>
+    </Router>
+  );
+}
+
+export default App;

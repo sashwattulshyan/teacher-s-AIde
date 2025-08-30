@@ -1,0 +1,20 @@
+{
+  "devDependencies": {
+    "express-validator": "^7.2.1",
+    "firebase-tools": "^14.15.1",
+    "jest": "^30.0.5",
+    "supertest": "^7.1.4",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "dependencies": {
+    "compromise": "^14.14.4",
+    "mammoth": "^1.10.0",
+    "multer": "^2.0.2",
+    "natural": "^8.1.0",
+    "officegen": "^0.6.5",
+    "pdf-parse": "^1.1.1",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
+  }
+}
