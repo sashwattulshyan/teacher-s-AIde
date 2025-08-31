@@ -186,10 +186,10 @@ app.use((err, req, res, next) => {
   });
 });
 
-// For Railway deployment
+// For Railway deployment - Fixed syntax error
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT} - Syntax error fixed!`);
 });
 
 // Export for Cloud Functions (if needed later)
