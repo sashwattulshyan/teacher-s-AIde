@@ -46,7 +46,7 @@ const app = express();
 // Security middleware
 app.use(helmet());
 
-// CORS configuration
+// CORS configuration - Updated for production
 app.use(cors({
   origin: [
     process.env.CLIENT_URL || 'http://localhost:5173',
@@ -57,6 +57,12 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Debug CORS requests
+app.use((req, res, next) => {
+  console.log(`CORS Debug: ${req.method} ${req.url} from origin: ${req.headers.origin}`);
+  next();
+});
 
 // Rate limiting
 const limiter = rateLimit({
