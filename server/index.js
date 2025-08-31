@@ -189,7 +189,8 @@ app.use((err, req, res, next) => {
 // For Railway deployment
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  });
+  console.log(`🚀 Server running on port ${PORT}`);
+});
 
 // Export for Cloud Functions (if needed later)
 if (typeof functions !== 'undefined') {
