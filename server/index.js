@@ -19,10 +19,8 @@ const swaggerJSDoc = require('swagger-jsdoc');
 const path = require('path');
 const expressStatic = express.static;
 
-// Initialize Firebase Admin (only if not already initialized)
-if (!admin.apps.length) {
-  admin.initializeApp();
-}
+// Import Firebase configuration (this will handle initialization)
+const { admin: adminApp, db, auth } = require('./config/firebase');
 
 const swaggerDefinition = {
   openapi: '3.0.0',
