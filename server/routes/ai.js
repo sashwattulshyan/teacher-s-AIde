@@ -237,7 +237,7 @@ router.post(
 
       // Add debugging for quiz/test generation
       if (lessonType === 'quiz' || lessonType === 'test') {
-        });
+        // Quiz/test generation logic handled below
       }
 
       // Validate AI response structure
