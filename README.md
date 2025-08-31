@@ -23,7 +23,7 @@ A comprehensive education platform for teachers and students, built with React, 
 ## 🚀 Live Demo
 
 - **Frontend**: https://eduspark-app-c1c19.web.app
-- **Backend**: Deployed on Railway
+- **Backend**: Deployed on Render
 
 ## 🛠️ Tech Stack
 
@@ -43,7 +43,7 @@ A comprehensive education platform for teachers and students, built with React, 
 
 ### Deployment
 - **Firebase Hosting** - Frontend hosting
-- **Railway** - Backend hosting
+- **Render** - Backend hosting
 - **Firestore** - Database
 - **Firebase Auth** - Authentication
 
@@ -53,7 +53,7 @@ A comprehensive education platform for teachers and students, built with React, 
 - Node.js 18+ 
 - npm or yarn
 - Firebase account
-- Railway account (for backend deployment)
+- Render account (for backend deployment)
 
 ### Local Development
 

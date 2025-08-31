@@ -97,6 +97,29 @@ app.get('/api/test', (req, res) => {
   });
 });
 
+// Firebase test endpoint
+app.get('/api/test-firebase', async (req, res) => {
+  try {
+    // Test if Firebase is properly initialized
+    const testDoc = await db.collection('test').doc('test').get();
+    
+    res.json({
+      message: 'Firebase is working!',
+      firebaseInitialized: true,
+      dbWorking: !!db,
+      authWorking: !!auth,
+      testDocExists: testDoc.exists
+    });
+  } catch (error) {
+    console.error('Firebase test error:', error);
+    res.status(500).json({
+      message: 'Firebase test failed',
+      error: error.message,
+      firebaseInitialized: false
+    });
+  }
+});
+
 // Simple auth endpoint for testing
 app.post('/api/auth/test', (req, res) => {
   res.json({
