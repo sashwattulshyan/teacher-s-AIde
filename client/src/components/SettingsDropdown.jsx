@@ -40,17 +40,10 @@ const SettingsDropdown = ({ currentUser }) => {
     
     try {
       const userId = currentUser.uid;
-      console.log('Starting account deletion for user:', userId);
-      console.log('User email:', currentUser.email);
-      console.log('User display name:', currentUser.displayName);
-
       // 1. Call server endpoint to delete all user data
       const token = await currentUser.getIdToken();
-      console.log('Got auth token, calling server endpoint...');
-      console.log('Token length:', token.length);
-      console.log('Token preview:', token.substring(0, 20) + '...');
+      + '...');
       
-      console.log('Making fetch request to /api/users/delete-account...');
       let response;
       try {
         response = await fetch(`${API_CONFIG.ENDPOINTS.USERS}/delete-account`, {
@@ -65,12 +58,7 @@ const SettingsDropdown = ({ currentUser }) => {
         throw new Error(`Network error: ${fetchError.message}. Make sure the server is running on port 3001.`);
       }
 
-      console.log('Server response status:', response.status);
-      console.log('Server response headers:', response.headers);
-      
       const responseText = await response.text();
-      console.log('Server response body:', responseText);
-      
       if (!response.ok) {
         let errorData;
         try {
@@ -87,42 +75,33 @@ const SettingsDropdown = ({ currentUser }) => {
       } catch (e) {
         result = { message: 'Account deleted successfully' };
       }
-      console.log('Server-side deletion result:', result);
-
       // 2. Delete Firebase Auth user
-      console.log('Deleting Firebase Auth user...');
       let authDeletionSuccess = false;
       try {
         await deleteUser(currentUser);
-        console.log('Firebase Auth user deleted');
         authDeletionSuccess = true;
       } catch (authError) {
         console.error('Firebase Auth deletion error:', authError);
         if (authError.code === 'auth/requires-recent-login') {
-          console.log('User needs recent login, attempting to re-authenticate...');
           // Try to re-authenticate the user
           try {
             // Force a token refresh to re-authenticate
             await currentUser.getIdToken(true);
-            console.log('Token refreshed, trying to delete user again...');
             await deleteUser(currentUser);
-            console.log('Firebase Auth user deleted after re-authentication');
             authDeletionSuccess = true;
           } catch (reAuthError) {
-            console.log('Re-authentication failed, signing out gracefully');
             try {
               await signOut(auth);
             } catch (signOutError) {
-              console.log('Sign out error (expected after deletion):', signOutError.message);
+              :', signOutError.message);
             }
             authDeletionSuccess = true;
           }
         } else {
-          console.log('Firebase Auth deletion failed, signing out gracefully');
           try {
             await signOut(auth);
           } catch (signOutError) {
-            console.log('Sign out error (expected after deletion):', signOutError.message);
+            :', signOutError.message);
           }
           authDeletionSuccess = true;
         }
@@ -130,7 +109,6 @@ const SettingsDropdown = ({ currentUser }) => {
 
       // 3. Redirect to landing page
       if (authDeletionSuccess) {
-        console.log('Account deletion successful, redirecting...');
         navigate('/');
       } else {
         throw new Error('Failed to delete account completely');

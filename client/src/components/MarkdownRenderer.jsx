@@ -3,8 +3,6 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import './MarkdownRenderer.css';
 
-
-
 const MarkdownRenderer = ({ 
   content, 
   className = '', 
@@ -15,7 +13,6 @@ const MarkdownRenderer = ({
   showStudentViewButton = false
 }) => {
 
-  
   // Handle empty or null content
   if (!content || typeof content !== 'string') {
     return <div className={`markdown-renderer ${className}`}>No content available</div>;

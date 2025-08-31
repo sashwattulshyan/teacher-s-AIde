@@ -10,8 +10,6 @@ const router = express.Router();
 router.delete('/delete-account', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.uid;
-    console.log('Server-side account deletion requested for user:', userId);
-    console.log('User object:', req.user);
 
     // Get user data to determine role
     const userDoc = await db.collection('users').doc(userId).get();
@@ -20,12 +18,11 @@ router.delete('/delete-account', authenticateToken, async (req, res) => {
     if (userDoc.exists) {
       const userData = userDoc.data();
       userRole = userData.role;
-      console.log('Found user document, role:', userRole);
     } else {
-      console.log('User document not found, proceeding with cleanup anyway');
+      // User document not found, proceeding with cleanup anyway
     }
 
-    console.log('Deleting account for user role:', userRole);
+    // Deleting account for user role
 
     // Initialize variables for tracking deletions
     let teacherClassroomsDeleted = 0;
@@ -40,7 +37,6 @@ router.delete('/delete-account', authenticateToken, async (req, res) => {
       
       const classroomDeletions = classroomsSnapshot.docs.map(async (classroomDoc) => {
         const classroomId = classroomDoc.id;
-        console.log('Deleting classroom:', classroomId);
         
         // Delete courses/units in this classroom
         const coursesQuery = db.collection('courses').where('classroomId', '==', classroomId);
@@ -48,14 +44,12 @@ router.delete('/delete-account', authenticateToken, async (req, res) => {
         
         const courseDeletions = coursesSnapshot.docs.map(courseDoc => courseDoc.ref.delete());
         await Promise.all(courseDeletions);
-        console.log('Deleted courses for classroom:', classroomId);
         
         // Delete classroom
         return classroomDoc.ref.delete();
       });
       
       await Promise.all(classroomDeletions);
-      console.log('Deleted teacher classrooms');
     }
 
     // For all users: delete student progress and transactions
@@ -63,13 +57,11 @@ router.delete('/delete-account', authenticateToken, async (req, res) => {
     const progressSnapshot = await progressQuery.get();
     const progressDeletions = progressSnapshot.docs.map(doc => doc.ref.delete());
     await Promise.all(progressDeletions);
-    console.log('Deleted student progress documents');
 
     const transactionsQuery = db.collection('pointTransactions').where('userId', '==', userId);
     const transactionsSnapshot = await transactionsQuery.get();
     const transactionDeletions = transactionsSnapshot.docs.map(doc => doc.ref.delete());
     await Promise.all(transactionDeletions);
-    console.log('Deleted point transactions');
 
     // Remove user from classrooms they're enrolled in (for students)
     if (userRole === 'student') {
@@ -83,24 +75,20 @@ router.delete('/delete-account', authenticateToken, async (req, res) => {
       });
       
       await Promise.all(classroomUpdates);
-      console.log('Removed student from classrooms');
     }
 
     // Finally, delete the user document (if it exists)
     if (userDoc.exists) {
       await db.collection('users').doc(userId).delete();
-      console.log('Deleted user document');
     } else {
-      console.log('User document already deleted or never existed');
+      // User document already deleted or never existed
     }
 
     // Try to delete the Firebase Auth user from server side as well
     try {
       await admin.auth().deleteUser(userId);
-      console.log('Firebase Auth user deleted from server side');
     } catch (authError) {
-      console.log('Server-side Firebase Auth deletion failed:', authError.message);
-      // This is okay - the client will handle the auth deletion
+      // Server-side Firebase Auth deletion failed - this is okay, client will handle it
     }
 
     res.json({

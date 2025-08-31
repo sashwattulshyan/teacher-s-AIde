@@ -97,13 +97,13 @@ const StudentDashboard = () => {
           
             // Check if we're on a lesson route
             if (lessonId && unitId) {
-              console.log(`Navigating to lesson ${lessonId} in unit ${unitId}`);
+          
               await fetchUnit(unitId);
               setSelectedLesson(parseInt(lessonId));
               setView('lesson-detail');
             } else if (unitId) {
           // Fetch the specific unit
-              console.log(`Navigating to unit ${unitId}`);
+          
               await fetchUnit(unitId);
               setView('unit-detail');
             } else {
@@ -139,7 +139,6 @@ const StudentDashboard = () => {
           const token = await getAuthToken();
           if (!token) return;
 
-          console.log('Initializing user stats for classroom:', selectedClassroom.id);
           const initResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/init-stats/${selectedClassroom.id}`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` }
@@ -148,8 +147,7 @@ const StudentDashboard = () => {
           if (initResponse.ok) {
             const initData = await initResponse.json();
             setStudentStats(initData.stats);
-            console.log('User stats initialized:', initData.stats);
-          }
+            }
         } catch (error) {
           console.error('Error initializing user stats:', error);
         }
@@ -167,7 +165,6 @@ const StudentDashboard = () => {
           const token = await getAuthToken();
           if (!token) return;
 
-          console.log('Awarding daily login points for classroom:', selectedClassroom.id);
           const loginResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/daily-login/${selectedClassroom.id}`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` }
@@ -175,7 +172,6 @@ const StudentDashboard = () => {
           
           if (loginResponse.ok) {
             const loginData = await loginResponse.json();
-            console.log('Daily login points awarded:', loginData);
             // Refresh stats to show updated streak and points
             await refreshStats();
           }
@@ -191,7 +187,6 @@ const StudentDashboard = () => {
   // Ensure data is loaded when component mounts or when units change
   useEffect(() => {
     if (selectedClassroom && units.length > 0 && Object.keys(studentProgress).length === 0) {
-      console.log('Reloading student data due to missing progress data');
       fetchStudentData();
     }
   }, [selectedClassroom, units, studentProgress]);
@@ -200,8 +195,6 @@ const StudentDashboard = () => {
     if (!selectedClassroom) return;
     
     try {
-      console.log('Fetching units for classroom:', selectedClassroom.id);
-      
       // Fetch units for this classroom
       const unitsQuery = query(
         collection(db, 'courses'),
@@ -214,7 +207,6 @@ const StudentDashboard = () => {
         ...doc.data()
       }));
       
-      console.log('Found units:', unitsData);
       setUnits(unitsData);
 
       // Fetch student progress and stats
@@ -231,8 +223,6 @@ const StudentDashboard = () => {
       const token = await getAuthToken();
       if (!token) throw new Error('Not authenticated');
 
-      console.log('Fetching student data for classroom:', selectedClassroom.id);
-
       // Fetch student stats
       const statsResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/stats/${selectedClassroom.id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -240,10 +230,8 @@ const StudentDashboard = () => {
       if (statsResponse.ok) {
         const stats = await statsResponse.json();
         setStudentStats(stats);
-        console.log('Student stats loaded:', stats);
-      } else if (statsResponse.status === 404) {
+        } else if (statsResponse.status === 404) {
         // Initialize stats if they don't exist
-        console.log('Initializing user stats for classroom:', selectedClassroom.id);
         const initResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/init-stats/${selectedClassroom.id}`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` }
@@ -251,8 +239,7 @@ const StudentDashboard = () => {
         if (initResponse.ok) {
           const initStats = await initResponse.json();
           setStudentStats(initStats.stats);
-          console.log('Student stats initialized:', initStats.stats);
-        } else {
+          } else {
           console.error('Failed to initialize stats:', initResponse.status);
         }
       } else {
@@ -266,22 +253,18 @@ const StudentDashboard = () => {
       if (leaderboardResponse.ok) {
         const leaderboardData = await leaderboardResponse.json();
         setLeaderboard(leaderboardData);
-        console.log('Leaderboard loaded:', leaderboardData);
-      } else {
+        } else {
         console.error('Failed to fetch leaderboard:', leaderboardResponse.status);
       }
 
       // Fetch student progress for each unit
       const progressPromises = units.map(async (unit) => {
         try {
-          console.log(`Fetching progress for unit ${unit.id}`);
           const progressResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/progress/${unit.id}`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (progressResponse.ok) {
             const progressData = await progressResponse.json();
-            console.log(`Progress for unit ${unit.id}:`, progressData);
-            
             // Ensure the progress data has the expected structure
             const normalizedProgress = {
               courseId: unit.id,
@@ -296,7 +279,6 @@ const StudentDashboard = () => {
               averageScore: progressData.averageScore || 0
             };
             
-            console.log(`Normalized progress for unit ${unit.id}:`, normalizedProgress);
             return { unitId: unit.id, progress: normalizedProgress };
           } else {
             console.error(`Failed to fetch progress for unit ${unit.id}:`, progressResponse.status);
@@ -312,12 +294,9 @@ const StudentDashboard = () => {
       const progressMap = {};
       progressResults.forEach(({ unitId, progress }) => {
         progressMap[unitId] = progress;
-        console.log(`Progress for unit ${unitId}:`, progress);
-      });
+        });
       setStudentProgress(progressMap);
-      console.log('Final student progress map:', progressMap);
-
-    } catch (err) {
+      } catch (err) {
       console.error('Error fetching student data:', err);
     }
   };
@@ -378,8 +357,6 @@ const StudentDashboard = () => {
       const token = await getAuthToken();
       if (!token) throw new Error('Not authenticated');
 
-      console.log(`Marking lesson ${lessonIndex} complete for unit ${unitId} in classroom ${selectedClassroom.id}`);
-
       // Use the new complete-lesson endpoint
       const response = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/complete-lesson`, {
         method: 'POST',
@@ -396,8 +373,6 @@ const StudentDashboard = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log(`Lesson ${lessonIndex} completed for unit ${unitId}:`, data);
-        
         // Update local progress state immediately
         setStudentProgress(prevProgress => {
           const currentProgress = prevProgress[unitId] || { completedLessons: [] };
@@ -415,7 +390,6 @@ const StudentDashboard = () => {
             }
           };
           
-          console.log('Updated local progress:', updatedProgress);
           return updatedProgress;
         });
         
@@ -428,8 +402,7 @@ const StudentDashboard = () => {
         
         // Refresh stats and leaderboard from server
         await refreshStats();
-        console.log(`Lesson ${lessonIndex} marked as complete for unit ${unitId}`);
-      } else {
+        } else {
         const errorData = await response.text();
         console.error('Failed to mark lesson complete:', response.status, errorData);
         setError('Failed to mark lesson as complete');
@@ -448,25 +421,20 @@ const StudentDashboard = () => {
 
   const getStudentPoints = () => {
     const points = studentStats?.totalPoints || 0;
-    console.log('Getting student points:', points, 'from stats:', studentStats);
     return points;
   };
 
   const getStudentStreak = () => {
     const streak = studentStats?.currentStreak || 0;
-    console.log('Getting student streak:', streak, 'from stats:', studentStats);
     return streak;
   };
 
   const isLessonCompleted = (unitId, lessonIndex) => {
     const progress = studentProgress[unitId];
-    console.log(`Checking if lesson ${lessonIndex} is completed in unit ${unitId}:`, progress);
     if (!progress || !progress.completedLessons) {
-      console.log(`No progress data for unit ${unitId}`);
       return false;
     }
     const isCompleted = progress.completedLessons.includes(lessonIndex);
-    console.log(`Lesson ${lessonIndex} completed: ${isCompleted}`);
     return isCompleted;
   };
 
@@ -525,7 +493,6 @@ const StudentDashboard = () => {
 
   const refreshAllData = async () => {
     if (selectedClassroom) {
-      console.log('Force refreshing all data');
       await fetchUnitsAndProgress();
     }
   };
@@ -537,8 +504,6 @@ const StudentDashboard = () => {
       const token = await getAuthToken();
       if (!token) throw new Error('Not authenticated');
 
-      console.log('Refreshing stats for classroom:', selectedClassroom.id);
-
       // Fetch updated student stats
       const statsResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/stats/${selectedClassroom.id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -547,8 +512,7 @@ const StudentDashboard = () => {
       if (statsResponse.ok) {
         const stats = await statsResponse.json();
         setStudentStats(stats);
-        console.log('Stats refreshed:', stats);
-      } else {
+        } else {
         console.error('Failed to refresh stats:', statsResponse.status);
       }
 
@@ -560,8 +524,7 @@ const StudentDashboard = () => {
       if (leaderboardResponse.ok) {
         const leaderboardData = await leaderboardResponse.json();
         setLeaderboard(leaderboardData);
-        console.log('Leaderboard refreshed:', leaderboardData);
-      } else {
+        } else {
         console.error('Failed to refresh leaderboard:', leaderboardResponse.status);
       }
     } catch (err) {
@@ -589,7 +552,6 @@ const StudentDashboard = () => {
           navigate(`/student/classroom/${selectedClassroom.id}/unit/${selectedUnit.id}`);
         }}
         onLessonComplete={(lessonIndex) => {
-          console.log('LessonViewer called onLessonComplete with index:', lessonIndex);
           markLessonComplete(selectedUnit.id, lessonIndex);
         }}
       />

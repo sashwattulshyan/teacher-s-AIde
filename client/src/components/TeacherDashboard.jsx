@@ -212,7 +212,7 @@ const TeacherDashboard = () => {
         {currentView === 'lessons' && selectedUnit && selectedUnit.id && (
           <>
             {/* Debug logging */}
-            {console.log('SelectedUnit in TeacherDashboard:', selectedUnit)}
+            {}
             <LessonManager 
               course={selectedUnit}
               classroom={selectedClassroom}

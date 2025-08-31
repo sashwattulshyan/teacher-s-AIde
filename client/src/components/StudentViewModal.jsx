@@ -15,7 +15,7 @@ const StudentViewModal = ({ lesson, course, onClose }) => {
 
   // Mock lesson complete callback (doesn't actually save for teachers)
   const handleLessonComplete = (lessonIndex) => {
-    console.log('Teacher preview: Lesson marked complete (simulation only)');
+    ');
   };
 
   return (

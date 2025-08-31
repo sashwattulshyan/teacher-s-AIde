@@ -65,8 +65,7 @@ const YouTubeSearch = ({ onSelectVideo, onClose }) => {
       
       if (response.ok) {
         setVideos(data.videos || []);
-        console.log('YouTube search results:', data.videos);
-      } else {
+        } else {
         console.error('YouTube search error response:', data);
         setError(data.message || 'Failed to search videos');
       }
@@ -159,7 +158,6 @@ const YouTubeSearch = ({ onSelectVideo, onClose }) => {
               type="text"
               value={searchQuery}
               onChange={(e) => {
-                console.log('Search input changed:', e.target.value);
                 setSearchQuery(e.target.value);
               }}
               onKeyDown={handleKeyDown}

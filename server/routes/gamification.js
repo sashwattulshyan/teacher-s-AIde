@@ -30,8 +30,6 @@ router.post('/init-stats/:classroomId', authenticateToken, async (req, res) => {
     const { classroomId } = req.params;
     const userId = req.user.uid;
 
-    console.log('Initializing stats for user:', userId, 'in classroom:', classroomId);
-
     const stats = await GamificationSystem.getUserStats(userId, classroomId);
     
     res.json({
@@ -313,39 +311,31 @@ router.post('/complete-lesson',
       const { unitId, lessonIndex, classroomId } = req.body;
       const userId = req.user.uid;
 
-      console.log('Complete lesson request:', { unitId, lessonIndex, classroomId, userId });
+      // Complete lesson request
 
       // Step 1: Get current progress
-      console.log('Step 1: Getting current progress...');
       const currentProgress = await GamificationSystem.getUserProgress(userId, unitId);
-      console.log('Current progress:', currentProgress);
       
       // Step 2: Update completed lessons
       const completedLessons = currentProgress.completedLessons || [];
       if (!completedLessons.includes(lessonIndex)) {
         completedLessons.push(lessonIndex);
       }
-      console.log('Updated completed lessons:', completedLessons);
 
       // Step 3: Update progress
-      console.log('Step 2: Updating progress...');
       await GamificationSystem.updateUserProgress(userId, unitId, {
         completedLessons,
         lessonsCompleted: completedLessons.length
       });
-      console.log('Progress updated successfully');
 
       // Step 4: Award points and update stats
-      console.log('Step 3: Awarding points and updating stats...');
       try {
         const points = await GamificationSystem.awardLessonCompletion(userId, classroomId, `${unitId}_${lessonIndex}`, 100);
-        console.log('Points awarded:', points);
         
         // Update user stats
         await GamificationSystem.updateUserStats(userId, classroomId, {
           lessonsCompleted: FieldValue.increment(1)
         });
-        console.log('User stats updated successfully');
       } catch (pointsError) {
         console.error('Error awarding points or updating stats (continuing anyway):', pointsError);
       }

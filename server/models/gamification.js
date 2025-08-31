@@ -233,17 +233,13 @@ class GamificationSystem {
   // Get leaderboard for a classroom (now from studentProgress)
   static async getLeaderboard(classroomId, limit = 20) {
     try {
-      console.log('Getting leaderboard for classroom:', classroomId);
       
       // Get all progress documents for the classroom and sort in memory to avoid index issues
       const snapshot = await db.collection('studentProgress')
         .where('classroomId', '==', classroomId)
         .get();
 
-      console.log('Leaderboard query result - empty:', snapshot.empty, 'size:', snapshot.size);
-
       if (snapshot.empty) {
-        console.log('No users found in leaderboard for classroom:', classroomId);
         return [];
       }
 
@@ -257,7 +253,6 @@ class GamificationSystem {
       let rank = 1;
 
       for (const { id, data } of sortedDocs) {
-        console.log('Leaderboard entry data:', data);
         
         // Try to get user details from the users collection
         let userName = 'Student';
@@ -272,7 +267,6 @@ class GamificationSystem {
             
             // Skip teachers in leaderboard
             if (userRole === 'teacher') {
-              console.log('Skipping teacher in leaderboard:', data.userId);
               continue;
             }
             
@@ -295,7 +289,6 @@ class GamificationSystem {
           quizzesCompleted: data.quizzesCompleted || 0
         };
         
-        console.log('Adding leaderboard entry:', entry);
         leaderboard.push(entry);
         rank++;
       }

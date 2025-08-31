@@ -25,17 +25,16 @@ if (hasFirebaseCredentials) {
     db = admin.firestore();
     auth = admin.auth();
     
-    console.log('✅ Firebase Admin initialized successfully with service account');
+    // Firebase Admin initialized successfully
   } catch (error) {
     console.error('❌ Error parsing Firebase credentials:', error.message);
-    console.log('⚠️  Falling back to development mode');
+    // Falling back to development mode
   }
 }
 
 // If Firebase initialization failed or credentials not found, use development mode
 if (!db || !auth) {
-  console.log('⚠️  Firebase credentials not found or invalid. Running in development mode without Firebase.');
-  console.log('   To enable Firebase features, set up GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable.');
+  // Running in development mode without Firebase
   
   // Create mock objects for development
   db = {

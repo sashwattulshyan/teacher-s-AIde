@@ -286,7 +286,7 @@ function App() {
   useEffect(() => {
     try {
               const unsubscribe = onAuthStateChanged(auth, async (user) => {
-          console.log('Auth state changed in main App:', user ? user.email : 'No user');
+      
           try {
             if (user) {
               setCurrentUser(user);
@@ -295,10 +295,9 @@ function App() {
               if (userDoc.exists()) {
                 const role = userDoc.data().role;
                 setUserRole(role);
-                console.log('User role set to:', role);
+        
               } else {
                 // User exists in Firebase Auth but not in Firestore (account was deleted)
-                console.log('User exists in Auth but not in Firestore - signing out');
                 await signOut(auth);
                 setCurrentUser(null);
                 setUserRole('');
@@ -307,7 +306,6 @@ function App() {
             } else {
               setCurrentUser(null);
               setUserRole('');
-              console.log('User logged out, cleared state');
             }
           } catch (error) {
             console.error("Error in onAuthStateChanged:", error);

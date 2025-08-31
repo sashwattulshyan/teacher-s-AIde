@@ -20,7 +20,6 @@ const AuthPage = ({ initialMode = 'signin' }) => {
   // Update isSignUp state based on current URL
   useEffect(() => {
     const isSignUpMode = location.pathname === '/signup';
-    console.log('AuthPage: URL changed to', location.pathname, 'isSignUp:', isSignUpMode);
     setIsSignUp(isSignUpMode);
   }, [location.pathname]);
   const [email, setEmail] = useState('');
@@ -54,7 +53,6 @@ const AuthPage = ({ initialMode = 'signin' }) => {
         });
 
         // Sign up successful - user is now authenticated
-        console.log('Sign up successful, user authenticated:', user.email);
         setSuccess('Account created successfully! Redirecting...');
         
         // The user is automatically signed in after signup, so the auth state change
@@ -67,7 +65,6 @@ const AuthPage = ({ initialMode = 'signin' }) => {
         await signInWithEmailAndPassword(auth, email, password);
         
         // Sign in successful - user is now authenticated
-        console.log('Sign in successful, user authenticated:', email);
         setSuccess('Sign in successful! Redirecting...');
         
         // The authentication state change will trigger a redirect in the main App component
@@ -82,12 +79,9 @@ const AuthPage = ({ initialMode = 'signin' }) => {
   };
 
   const toggleMode = () => {
-    console.log('toggleMode called, current isSignUp:', isSignUp);
     if (isSignUp) {
-      console.log('Navigating to /signin');
       navigate('/signin');
     } else {
-      console.log('Navigating to /signup');
       navigate('/signup');
     }
     // Reset form fields when switching modes

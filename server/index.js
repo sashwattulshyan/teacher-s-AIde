@@ -58,12 +58,6 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Debug CORS requests
-app.use((req, res, next) => {
-  console.log(`CORS Debug: ${req.method} ${req.url} from origin: ${req.headers.origin}`);
-  next();
-});
-
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -169,7 +163,6 @@ app.use('/api/youtube', require('./routes/youtube'));
 app.use('/api/video', require('./routes/video'));
 app.use('/api/grading', require('./routes/grading'));
 
-
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
@@ -196,10 +189,7 @@ app.use((err, req, res, next) => {
 // For Railway deployment
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/health`);
-  console.log(`🧪 Test endpoint: http://localhost:${PORT}/api/test`);
-});
+  });
 
 // Export for Cloud Functions (if needed later)
 if (typeof functions !== 'undefined') {

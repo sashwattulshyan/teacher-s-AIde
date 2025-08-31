@@ -237,11 +237,6 @@ router.post(
 
       // Add debugging for quiz/test generation
       if (lessonType === 'quiz' || lessonType === 'test') {
-        console.log('Quiz/Test generation debug:', {
-          lessonType,
-          numQuestions,
-          questionTypes,
-          contentJson: JSON.stringify(contentJson, null, 2)
         });
       }
 
@@ -392,12 +387,6 @@ router.post(
     const errors = validationResult(req);
     
     // Debug logging for generate-quiz
-    console.log('AI generate-quiz request received:');
-    console.log('Request body:', req.body);
-    console.log('Request files:', req.files ? req.files.length : 0);
-    console.log('unitId from body:', req.body.unitId);
-    console.log('unitId type:', typeof req.body.unitId);
-    
     if (!errors.isEmpty()) {
       const list = errors.array();
       console.warn('AI generate-quiz validation errors:', list);

@@ -9,7 +9,6 @@ import "./LessonViewer.css";
 const LessonViewer = ({ course, onBack, onLessonComplete, initialLessonIndex = 0 }) => {
   const [currentLessonIndex, setCurrentLessonIndex] = useState(initialLessonIndex);
   
-  console.log(`LessonViewer initialized with lesson index: ${initialLessonIndex}, current: ${currentLessonIndex}`);
   const [completedLessons, setCompletedLessons] = useState([]);
   const [quizAnswers, setQuizAnswers] = useState({});
   const [quizSubmitted, setQuizSubmitted] = useState({});
@@ -88,11 +87,8 @@ const LessonViewer = ({ course, onBack, onLessonComplete, initialLessonIndex = 0
   };
 
   const markLessonComplete = async () => {
-    console.log(`Marking lesson ${currentLessonIndex} as complete`);
-    
     // Check if lesson requires submission
     if (requiresSubmission(currentLesson.type) && !isLessonSubmitted(currentLessonIndex, currentLesson.type)) {
-      console.log(`Lesson ${currentLessonIndex} requires submission but hasn't been submitted`);
       return;
     }
     
@@ -102,14 +98,12 @@ const LessonViewer = ({ course, onBack, onLessonComplete, initialLessonIndex = 0
     
     // Call the onLessonComplete callback if provided
     if (onLessonComplete) {
-      console.log('Calling onLessonComplete callback with lesson index:', currentLessonIndex);
       onLessonComplete(currentLessonIndex);
     } else {
       console.warn('onLessonComplete callback not provided');
     }
     
-    console.log(`Lesson ${currentLessonIndex} marked as complete`);
-  };
+    };
 
   const handleQuizAnswer = (questionIndex, answerIndex) => {
     setQuizAnswers(prev => ({

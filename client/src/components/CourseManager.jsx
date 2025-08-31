@@ -212,7 +212,6 @@ const UnitManager = ({ classroom, onUnitSelect, onBack, onShowAnalytics }) => {
         )}
       </div>
 
-
     </div>
   );
 };

@@ -393,18 +393,12 @@ const LessonManager = ({ course, classroom, onBack }) => {
       const formData = new FormData();
       
       // Debug logging
-      console.log('Course object:', course);
-      console.log('Course ID:', course?.id);
-      console.log('Course ID type:', typeof course?.id);
-      
       if (!course?.id) {
         throw new Error('Course ID is missing. Please try refreshing the page.');
       }
       
       // Ensure unitId is a string
       const unitId = String(course.id);
-      console.log('UnitId being sent:', unitId);
-      
       formData.append('unitId', unitId);
       formData.append('lessonType', String(aiLessonType || '').toLowerCase());
       if (aiTitle.trim()) formData.append('title', aiTitle.trim());
@@ -444,11 +438,8 @@ const LessonManager = ({ course, classroom, onBack }) => {
       const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
       
       // Debug: Log what's being sent
-              console.log('Sending request to:', `${API_CONFIG.ENDPOINTS.AI}/${endpoint}`);
-      console.log('FormData entries:');
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-      }
+              for (let [key, value] of formData.entries()) {
+        }
       
               const res = await fetch(`${API_CONFIG.ENDPOINTS.AI}/${endpoint}`, {
         method: 'POST',

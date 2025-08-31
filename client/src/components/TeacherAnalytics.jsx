@@ -103,8 +103,7 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
           let stats = null;
           if (statsResponse.ok) {
             stats = await statsResponse.json();
-            console.log(`Stats for student ${student.id}:`, stats);
-          } else {
+            } else {
             console.error(`Failed to fetch stats for student ${student.id}:`, statsResponse.status, statsResponse.statusText);
             // Try to get response text for debugging
             try {
@@ -118,13 +117,11 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
           // Fetch progress for each unit for this specific student
           const unitProgressPromises = unitsList.map(async (unit) => {
             try {
-              console.log(`Fetching progress for student ${student.id} in unit ${unit.id}`);
               const progressResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/progress/${unit.id}?userId=${student.id}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
               });
               if (progressResponse.ok) {
                 const progress = await progressResponse.json();
-                console.log(`Progress for student ${student.id} in unit ${unit.id}:`, progress);
                 return { unitId: unit.id, progress };
               } else {
                 console.error(`Failed to fetch progress for student ${student.id} in unit ${unit.id}:`, progressResponse.status);
@@ -445,8 +442,6 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
                 const avgProgress = validProgressData.length > 0 ? 
                   Math.round(validProgressData.reduce((sum, data) => sum + data.progressPercentage, 0) / validProgressData.length) : 0;
                 
-                console.log(`Unit ${unit.title}: Avg progress = ${avgProgress}%, Students:`, studentProgressData);
-                
                 return (
                   <div key={unit.id} className="unit-progress-card">
                     <div className="unit-header">
@@ -549,8 +544,6 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
                     const completedLessons = progress?.completedLessons?.length || 0;
                     const totalLessons = unit.lessons?.length || 0;
                     const progressPercentage = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
-                    
-                    console.log(`Unit ${unit.title}: ${completedLessons}/${totalLessons} = ${progressPercentage}%`);
                     
                     return (
                       <div key={unit.id} className="unit-progress-item">
@@ -739,7 +732,6 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
               })}
             </div>
           </div>
-
 
         </div>
       )}

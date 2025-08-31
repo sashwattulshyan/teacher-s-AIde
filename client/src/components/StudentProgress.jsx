@@ -74,7 +74,6 @@ const StudentProgress = ({ classroom, onBack }) => {
         setStudentStats(stats);
       } else if (statsResponse.status === 404) {
         // Initialize stats if they don't exist
-        console.log('Initializing user stats for classroom:', classroomId);
         const initResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/init-stats/${classroomId}`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` }
@@ -109,8 +108,7 @@ const StudentProgress = ({ classroom, onBack }) => {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (dailyLoginResponse.ok) {
-          console.log('Daily login points awarded');
-        }
+          }
       } catch (dailyLoginError) {
         console.warn('Failed to award daily login points:', dailyLoginError);
       }
