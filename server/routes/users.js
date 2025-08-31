@@ -27,11 +27,16 @@ router.delete('/delete-account', authenticateToken, async (req, res) => {
 
     console.log('Deleting account for user role:', userRole);
 
+    // Initialize variables for tracking deletions
+    let teacherClassroomsDeleted = 0;
+    let studentClassroomsUpdated = 0;
+
     // Delete user-related data based on role
     if (userRole === 'teacher') {
       // For teachers: delete classrooms they created
       const classroomsQuery = db.collection('classrooms').where('teacherId', '==', userId);
       const classroomsSnapshot = await classroomsQuery.get();
+      teacherClassroomsDeleted = classroomsSnapshot.size;
       
       const classroomDeletions = classroomsSnapshot.docs.map(async (classroomDoc) => {
         const classroomId = classroomDoc.id;
@@ -70,6 +75,7 @@ router.delete('/delete-account', authenticateToken, async (req, res) => {
     if (userRole === 'student') {
       const classroomsQuery = db.collection('classrooms').where('studentIds', 'array-contains', userId);
       const classroomsSnapshot = await classroomsQuery.get();
+      studentClassroomsUpdated = classroomsSnapshot.size;
       
       const classroomUpdates = classroomsSnapshot.docs.map(async (classroomDoc) => {
         const studentIds = classroomDoc.data().studentIds.filter(id => id !== userId);
@@ -103,7 +109,8 @@ router.delete('/delete-account', authenticateToken, async (req, res) => {
         userDocument: userDoc.exists,
         studentProgress: progressSnapshot.size,
         pointTransactions: transactionsSnapshot.size,
-        classrooms: userRole === 'teacher' ? classroomsSnapshot?.size || 0 : 0
+        teacherClassroomsDeleted,
+        studentClassroomsUpdated
       }
     });
 
