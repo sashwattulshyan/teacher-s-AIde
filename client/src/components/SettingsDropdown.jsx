@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { auth, db } from '../firebase';
-import { deleteUser } from 'firebase/auth';
+import { deleteUser, signOut } from 'firebase/auth';
 import { doc, deleteDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import API_CONFIG from '../config/api';
@@ -109,13 +109,21 @@ const SettingsDropdown = ({ currentUser }) => {
             console.log('Firebase Auth user deleted after re-authentication');
             authDeletionSuccess = true;
           } catch (reAuthError) {
-            console.log('Re-authentication failed, signing out');
-            await signOut(auth);
+            console.log('Re-authentication failed, signing out gracefully');
+            try {
+              await signOut(auth);
+            } catch (signOutError) {
+              console.log('Sign out error (expected after deletion):', signOutError.message);
+            }
             authDeletionSuccess = true;
           }
         } else {
-          console.log('Firebase Auth deletion failed, signing out');
-          await signOut(auth);
+          console.log('Firebase Auth deletion failed, signing out gracefully');
+          try {
+            await signOut(auth);
+          } catch (signOutError) {
+            console.log('Sign out error (expected after deletion):', signOutError.message);
+          }
           authDeletionSuccess = true;
         }
       }
