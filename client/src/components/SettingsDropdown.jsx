@@ -3,6 +3,7 @@ import { auth, db } from '../firebase';
 import { deleteUser } from 'firebase/auth';
 import { doc, deleteDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import API_CONFIG from '../config/api';
 import './SettingsDropdown.css';
 
 const SettingsDropdown = ({ currentUser }) => {
