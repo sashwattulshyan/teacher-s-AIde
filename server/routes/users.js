@@ -11,6 +11,7 @@ router.delete('/delete-account', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.uid;
     console.log('Server-side account deletion requested for user:', userId);
+    console.log('User object:', req.user);
 
     // Get user data to determine role
     const userDoc = await db.collection('users').doc(userId).get();
@@ -108,9 +109,11 @@ router.delete('/delete-account', authenticateToken, async (req, res) => {
 
   } catch (error) {
     console.error('Error deleting account:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({
       error: 'Internal server error',
-      message: 'Failed to delete account'
+      message: 'Failed to delete account',
+      details: error.message
     });
   }
 });
