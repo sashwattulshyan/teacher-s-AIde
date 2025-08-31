@@ -119,7 +119,7 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
           const unitProgressPromises = unitsList.map(async (unit) => {
             try {
               console.log(`Fetching progress for student ${student.id} in unit ${unit.id}`);
-              const progressResponse = await fetch(`${API_BASE}/api/gamification/progress/${unit.id}?userId=${student.id}`, {
+              const progressResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/progress/${unit.id}?userId=${student.id}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
               });
               if (progressResponse.ok) {

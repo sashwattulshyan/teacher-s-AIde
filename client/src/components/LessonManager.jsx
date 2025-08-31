@@ -444,13 +444,13 @@ const LessonManager = ({ course, classroom, onBack }) => {
       const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
       
       // Debug: Log what's being sent
-      console.log('Sending request to:', `${API_BASE}/api/ai/${endpoint}`);
+              console.log('Sending request to:', `${API_CONFIG.ENDPOINTS.AI}/${endpoint}`);
       console.log('FormData entries:');
       for (let [key, value] of formData.entries()) {
         console.log(`${key}:`, value);
       }
       
-      const res = await fetch(`${API_BASE}/api/ai/${endpoint}`, {
+              const res = await fetch(`${API_CONFIG.ENDPOINTS.AI}/${endpoint}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,

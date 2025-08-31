@@ -75,7 +75,7 @@ const StudentProgress = ({ classroom, onBack }) => {
       } else if (statsResponse.status === 404) {
         // Initialize stats if they don't exist
         console.log('Initializing user stats for classroom:', classroomId);
-        const initResponse = await fetch(`${API_BASE}/api/gamification/init-stats/${classroomId}`, {
+        const initResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/init-stats/${classroomId}`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -90,7 +90,7 @@ const StudentProgress = ({ classroom, onBack }) => {
       }
 
       // Fetch leaderboard
-      const leaderboardResponse = await fetch(`${API_BASE}/api/gamification/leaderboard/${classroomId}`, {
+              const leaderboardResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/leaderboard/${classroomId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (leaderboardResponse.ok) {
@@ -104,7 +104,7 @@ const StudentProgress = ({ classroom, onBack }) => {
 
       // Award daily login points to initialize streak
       try {
-        const dailyLoginResponse = await fetch(`${API_BASE}/api/gamification/daily-login/${classroomId}`, {
+        const dailyLoginResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/daily-login/${classroomId}`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -208,7 +208,7 @@ const StudentProgress = ({ classroom, onBack }) => {
       const token = await getAuthToken();
       if (!token) throw new Error('Not authenticated');
 
-      const response = await fetch(`${API_BASE}/api/gamification/award-points`, {
+              const response = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/award-points`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
