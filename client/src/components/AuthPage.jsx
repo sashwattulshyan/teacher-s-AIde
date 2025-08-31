@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { setDoc, doc } from 'firebase/firestore';
+import LoadingSpinner from './LoadingSpinner';
 import './AuthPage.css';
 
 const AuthPage = ({ initialMode = 'signin' }) => {
@@ -200,13 +201,16 @@ const AuthPage = ({ initialMode = 'signin' }) => {
             {error && <div className="error-message">{error}</div>}
             {success && <div className="success-message">{success}</div>}
 
-            <button type="submit" className="submit-button" disabled={loading}>
-              {loading ? (
-                <span className="loading-spinner">⏳</span>
-              ) : (
-                isSignUp ? 'Create Account' : 'Sign In'
-              )}
-            </button>
+            {loading ? (
+              <div className="auth-loading-overlay">
+                <LoadingSpinner message="Signing you in..." />
+                <p className="auth-loading-note">This may take a minute if this is your first time logging in after a while</p>
+              </div>
+            ) : (
+              <button type="submit" className="submit-button">
+                {isSignUp ? 'Create Account' : 'Sign In'}
+              </button>
+            )}
           </form>
 
           <div className="auth-footer">

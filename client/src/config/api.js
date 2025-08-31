@@ -1,5 +1,5 @@
 // API configuration
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://your-edu-app.onrender.com';
 
 export const API_CONFIG = {
   BASE_URL: API_BASE_URL,

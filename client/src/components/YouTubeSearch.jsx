@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { auth } from '../firebase';
 import './YouTubeSearch.css';
 
-const API_BASE = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001';
+import API_CONFIG from '../config/api';
 
 const YouTubeSearch = ({ onSelectVideo, onClose }) => {
   const [searchQuery, setSearchQuery] = useState('');

@@ -4,7 +4,7 @@ import { auth, db } from '../firebase';
 import { collection, query, where, getDocs, onSnapshot, doc, getDoc } from 'firebase/firestore';
 import './TeacherAnalytics.css';
 
-const API_BASE = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001';
+import API_CONFIG from '../config/api';
 
 async function getAuthToken() {
   if (!auth.currentUser) return null;
@@ -84,7 +84,7 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
       if (!token) throw new Error('Not authenticated');
 
       // Fetch leaderboard
-      const leaderboardResponse = await fetch(`${API_BASE}/api/gamification/leaderboard/${classroomId}`, {
+      const leaderboardResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/leaderboard/${classroomId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (leaderboardResponse.ok) {
@@ -96,7 +96,7 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
       const studentDataPromises = studentList.map(async (student) => {
         try {
           // Fetch student stats for this specific student
-          const statsResponse = await fetch(`${API_BASE}/api/gamification/stats/${classroomId}?userId=${student.id}`, {
+          const statsResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/stats/${classroomId}?userId=${student.id}`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           

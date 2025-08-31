@@ -52,7 +52,7 @@ const SettingsDropdown = ({ currentUser }) => {
       console.log('Making fetch request to /api/users/delete-account...');
       let response;
       try {
-        response = await fetch('http://localhost:3001/api/users/delete-account', {
+        response = await fetch(`${API_CONFIG.ENDPOINTS.USERS}/delete-account`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`,

@@ -287,3 +287,39 @@
     padding: 16px 20px;
   }
 }
+
+/* Loading overlay styles */
+.auth-loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  margin-top: 1rem;
+}
+
+.auth-loading-note {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #6b7280;
+  text-align: center;
+  font-style: italic;
+  max-width: 300px;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .auth-loading-overlay {
+    padding: 1.5rem;
+  }
+  
+  .auth-loading-note {
+    font-size: 0.8rem;
+    max-width: 250px;
+  }
+}

@@ -25,16 +25,16 @@ const ProgressTracker = ({ classroomId, unitId }) => {
       
       // Fetch all data in parallel
       const [statsRes, progressRes, goalsRes, achievementsRes] = await Promise.all([
-        fetch(`http://localhost:3001/api/gamification/stats/${classroomId}`, {
+        fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/stats/${classroomId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        unitId ? fetch(`http://localhost:3001/api/gamification/progress/${unitId}`, {
+        unitId ? fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/progress/${unitId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }) : Promise.resolve({ ok: false }),
-        fetch(`http://localhost:3001/api/gamification/weekly-goals/${classroomId}`, {
+        fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/weekly-goals/${classroomId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch(`http://localhost:3001/api/gamification/achievements/${classroomId}`, {
+        fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/achievements/${classroomId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
       ]);

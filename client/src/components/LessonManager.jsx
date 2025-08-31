@@ -8,7 +8,7 @@ import StudentViewModal from './StudentViewModal';
 import GradingDashboard from './GradingDashboard';
 import './LessonManager.css';
 
-const API_BASE = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001';
+import API_CONFIG from '../config/api';
 
 async function getAuthToken() {
   if (!auth.currentUser) return null;

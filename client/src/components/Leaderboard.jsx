@@ -20,7 +20,7 @@ const Leaderboard = ({ classroomId }) => {
       setLoading(true);
       const token = await user.getIdToken();
       
-      const response = await fetch(`http://localhost:3001/api/gamification/leaderboard/${classroomId}?limit=20`, {
+      const response = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/leaderboard/${classroomId}?limit=20`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

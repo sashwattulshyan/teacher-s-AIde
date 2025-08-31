@@ -5,9 +5,8 @@ import { collection, query, where, getDocs, doc, getDoc, updateDoc } from "fireb
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "../firebase";
 import LessonViewer from "./LessonViewer";
+import API_CONFIG from "../config/api";
 import "./StudentDashboard.css";
-
-const API_BASE = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001';
 
 async function getAuthToken() {
   if (!auth.currentUser) return null;
@@ -141,7 +140,7 @@ const StudentDashboard = () => {
           if (!token) return;
 
           console.log('Initializing user stats for classroom:', selectedClassroom.id);
-          const initResponse = await fetch(`${API_BASE}/api/gamification/init-stats/${selectedClassroom.id}`, {
+          const initResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/init-stats/${selectedClassroom.id}`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` }
           });
@@ -169,7 +168,7 @@ const StudentDashboard = () => {
           if (!token) return;
 
           console.log('Awarding daily login points for classroom:', selectedClassroom.id);
-          const loginResponse = await fetch(`${API_BASE}/api/gamification/daily-login/${selectedClassroom.id}`, {
+          const loginResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/daily-login/${selectedClassroom.id}`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` }
           });
@@ -235,7 +234,7 @@ const StudentDashboard = () => {
       console.log('Fetching student data for classroom:', selectedClassroom.id);
 
       // Fetch student stats
-      const statsResponse = await fetch(`${API_BASE}/api/gamification/stats/${selectedClassroom.id}`, {
+      const statsResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/stats/${selectedClassroom.id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (statsResponse.ok) {
@@ -245,7 +244,7 @@ const StudentDashboard = () => {
       } else if (statsResponse.status === 404) {
         // Initialize stats if they don't exist
         console.log('Initializing user stats for classroom:', selectedClassroom.id);
-        const initResponse = await fetch(`${API_BASE}/api/gamification/init-stats/${selectedClassroom.id}`, {
+        const initResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/init-stats/${selectedClassroom.id}`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -261,7 +260,7 @@ const StudentDashboard = () => {
       }
 
       // Fetch leaderboard
-      const leaderboardResponse = await fetch(`${API_BASE}/api/gamification/leaderboard/${selectedClassroom.id}`, {
+      const leaderboardResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/leaderboard/${selectedClassroom.id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (leaderboardResponse.ok) {
@@ -276,7 +275,7 @@ const StudentDashboard = () => {
       const progressPromises = units.map(async (unit) => {
         try {
           console.log(`Fetching progress for unit ${unit.id}`);
-          const progressResponse = await fetch(`${API_BASE}/api/gamification/progress/${unit.id}`, {
+          const progressResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/progress/${unit.id}`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (progressResponse.ok) {
@@ -382,7 +381,7 @@ const StudentDashboard = () => {
       console.log(`Marking lesson ${lessonIndex} complete for unit ${unitId} in classroom ${selectedClassroom.id}`);
 
       // Use the new complete-lesson endpoint
-      const response = await fetch(`${API_BASE}/api/gamification/complete-lesson`, {
+      const response = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/complete-lesson`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -541,7 +540,7 @@ const StudentDashboard = () => {
       console.log('Refreshing stats for classroom:', selectedClassroom.id);
 
       // Fetch updated student stats
-      const statsResponse = await fetch(`${API_BASE}/api/gamification/stats/${selectedClassroom.id}`, {
+      const statsResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/stats/${selectedClassroom.id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
@@ -554,7 +553,7 @@ const StudentDashboard = () => {
       }
 
       // Fetch updated leaderboard
-      const leaderboardResponse = await fetch(`${API_BASE}/api/gamification/leaderboard/${selectedClassroom.id}`, {
+      const leaderboardResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/leaderboard/${selectedClassroom.id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       

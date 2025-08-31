@@ -5,7 +5,7 @@ import { collection, query, where, getDocs, doc, updateDoc, onSnapshot } from 'f
 import { useNavigate, useParams } from 'react-router-dom';
 import './StudentProgress.css';
 
-const API_BASE = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001';
+import API_CONFIG from '../config/api';
 
 async function getAuthToken() {
   if (!auth.currentUser) return null;
@@ -66,7 +66,7 @@ const StudentProgress = ({ classroom, onBack }) => {
       if (!token) throw new Error('Not authenticated');
 
       // Fetch student stats
-      const statsResponse = await fetch(`${API_BASE}/api/gamification/stats/${classroomId}`, {
+      const statsResponse = await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/stats/${classroomId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (statsResponse.ok) {

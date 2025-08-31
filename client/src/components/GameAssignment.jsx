@@ -60,7 +60,7 @@ const GameAssignment = ({ assignment, classroomId, onComplete }) => {
     try {
       const token = await user.getIdToken();
       
-      await fetch('http://localhost:3001/api/gamification/assignment-completion', {
+      await fetch(`${API_CONFIG.ENDPOINTS.GAMIFICATION}/assignment-completion`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
