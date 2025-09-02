@@ -7,6 +7,14 @@ const router = express.Router();
 // YouTube Data API v3 endpoint
 const YOUTUBE_API_BASE = 'https://www.googleapis.com/youtube/v3';
 
+// Basic route to test if router is loading
+router.get('/', (req, res) => {
+  res.json({
+    message: 'YouTube API router is working',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Test endpoint to verify routing
 router.get('/test', (req, res) => {
   res.json({
@@ -21,6 +29,16 @@ router.get('/ping', (req, res) => {
   res.json({
     status: 'ok',
     message: 'YouTube API ping successful',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Test search endpoint without authentication
+router.get('/search-test', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.json({
+    message: 'Search endpoint accessible',
+    query: req.query.q,
     timestamp: new Date().toISOString()
   });
 });

@@ -151,20 +151,39 @@ app.get('/api/classrooms/test', (req, res) => {
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Mount main API routes
+console.log('Loading API routes...');
 app.use('/api/auth', require('./routes/auth'));
+console.log('Auth routes loaded');
 app.use('/api/classrooms', require('./routes/classrooms'));
+console.log('Classroom routes loaded');
 app.use('/api/courses', require('./routes/courses'));
+console.log('Course routes loaded');
 app.use('/api/lessons', require('./routes/lessons'));
+console.log('Lesson routes loaded');
 app.use('/api/users', require('./routes/users'));
+console.log('User routes loaded');
 app.use('/api/admin', require('./routes/admin'));
+console.log('Admin routes loaded');
 app.use('/api/ai', require('./routes/ai'));
+console.log('AI routes loaded');
 app.use('/api/gamification', require('./routes/gamification'));
-app.use('/api/youtube', (req, res, next) => {
-  console.log('YouTube route accessed:', req.method, req.originalUrl);
-  next();
-}, require('./routes/youtube'));
+console.log('Gamification routes loaded');
+
+console.log('Loading YouTube routes...');
+try {
+  app.use('/api/youtube', (req, res, next) => {
+    console.log('YouTube route accessed:', req.method, req.originalUrl);
+    next();
+  }, require('./routes/youtube'));
+  console.log('YouTube routes loaded successfully');
+} catch (error) {
+  console.error('Error loading YouTube routes:', error);
+}
+
 app.use('/api/video', require('./routes/video'));
+console.log('Video routes loaded');
 app.use('/api/grading', require('./routes/grading'));
+console.log('Grading routes loaded');
 
 // 404 handler
 app.use((req, res) => {
