@@ -171,11 +171,17 @@ console.log('Gamification routes loaded');
 
 console.log('Loading YouTube routes...');
 try {
+  const youtubeRouter = require('./routes/youtube');
+  console.log('YouTube router imported successfully');
+  
   app.use('/api/youtube', (req, res, next) => {
     console.log('YouTube route accessed:', req.method, req.originalUrl);
     next();
-  }, require('./routes/youtube'));
+  }, youtubeRouter);
   console.log('YouTube routes loaded successfully');
+  
+  // Test if routes are registered
+  console.log('Registered YouTube routes:', youtubeRouter.stack?.map(layer => layer.route?.path || 'middleware'));
 } catch (error) {
   console.error('Error loading YouTube routes:', error);
 }
