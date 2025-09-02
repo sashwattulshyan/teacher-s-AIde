@@ -19,7 +19,8 @@ router.get('/search',
     console.log('YouTube search request received:', {
       query: req.query.q,
       user: req.user?.uid,
-      userRole: req.userRole
+      userRole: req.userRole,
+      timestamp: new Date().toISOString()
     });
     
     const errors = validationResult(req);
