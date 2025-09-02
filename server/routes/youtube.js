@@ -7,6 +7,24 @@ const router = express.Router();
 // YouTube Data API v3 endpoint
 const YOUTUBE_API_BASE = 'https://www.googleapis.com/youtube/v3';
 
+// Test endpoint to verify routing
+router.get('/test', (req, res) => {
+  res.json({
+    message: 'YouTube API route is working',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Simple test endpoint without authentication
+router.get('/ping', (req, res) => {
+  res.json({
+    status: 'ok',
+    message: 'YouTube API ping successful',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Search YouTube videos
 router.get('/search', 
   authenticateToken, 
