@@ -61,6 +61,16 @@ const YouTubeSearch = ({ onSelectVideo, onClose }) => {
         }
       });
       
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Non-JSON response received:', text);
+        setError('Server returned an invalid response. Please check if the server is running properly.');
+        setLoading(false);
+        return;
+      }
+      
       const data = await response.json();
       
       if (response.ok) {

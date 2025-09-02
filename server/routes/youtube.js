@@ -16,8 +16,15 @@ router.get('/search',
     query('maxResults').optional().isInt({ min: 1, max: 50 }).withMessage('maxResults must be between 1 and 50')
   ],
   async (req, res) => {
+    console.log('YouTube search request received:', {
+      query: req.query.q,
+      user: req.user?.uid,
+      userRole: req.userRole
+    });
+    
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.error('Validation errors:', errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
 
@@ -26,6 +33,7 @@ router.get('/search',
       const apiKey = process.env.YOUTUBE_API_KEY;
 
       if (!apiKey) {
+        console.error('YouTube API key not configured');
         return res.status(500).json({
           error: 'YouTube API not configured',
           message: 'YouTube API key is not set. Please configure YOUTUBE_API_KEY in your environment variables.'
