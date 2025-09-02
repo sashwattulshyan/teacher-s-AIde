@@ -159,7 +159,10 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/ai', require('./routes/ai'));
 app.use('/api/gamification', require('./routes/gamification'));
-app.use('/api/youtube', require('./routes/youtube'));
+app.use('/api/youtube', (req, res, next) => {
+  console.log('YouTube route accessed:', req.method, req.originalUrl);
+  next();
+}, require('./routes/youtube'));
 app.use('/api/video', require('./routes/video'));
 app.use('/api/grading', require('./routes/grading'));
 

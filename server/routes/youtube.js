@@ -34,6 +34,8 @@ router.get('/search',
     query('maxResults').optional().isInt({ min: 1, max: 50 }).withMessage('maxResults must be between 1 and 50')
   ],
   async (req, res) => {
+    // Ensure we always return JSON
+    res.setHeader('Content-Type', 'application/json');
     console.log('YouTube search request received:', {
       query: req.query.q,
       user: req.user?.uid,
@@ -112,13 +114,26 @@ router.get('/search',
 
     } catch (error) {
       console.error('YouTube search error:', error);
+      console.error('Error stack:', error.stack);
       res.status(500).json({
         error: 'Internal server error',
-        message: 'Failed to search YouTube videos'
+        message: 'Failed to search YouTube videos',
+        details: error.message
       });
     }
   }
 );
+
+// Error handler for this router
+router.use((error, req, res, next) => {
+  console.error('YouTube router error:', error);
+  res.setHeader('Content-Type', 'application/json');
+  res.status(500).json({
+    error: 'YouTube API error',
+    message: 'An error occurred in the YouTube API',
+    details: error.message
+  });
+});
 
 // Get video details by ID
 router.get('/video/:videoId',
