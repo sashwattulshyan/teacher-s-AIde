@@ -53,7 +53,7 @@ const YouTubeSearch = ({ onSelectVideo, onClose }) => {
         return;
       }
       
-      const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}`, {
+      const response = await fetch(`${API_CONFIG.ENDPOINTS.YOUTUBE}/search?q=${encodeURIComponent(query)}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

@@ -535,7 +535,7 @@ const LessonManager = ({ course, classroom, onBack }) => {
       formData.append('unitId', course.id);
 
       // Upload video
-      const response = await fetch('/api/video/upload', {
+      const response = await fetch(`${API_CONFIG.ENDPOINTS.VIDEO}/upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

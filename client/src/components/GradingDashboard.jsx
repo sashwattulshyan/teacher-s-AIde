@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
 import { collection, query, where, getDocs, doc, getDoc, updateDoc } from 'firebase/firestore';
+import API_CONFIG from '../config/api';
 import './GradingDashboard.css';
 
 const GradingDashboard = ({ unit, classroom, onBack }) => {
@@ -192,7 +193,7 @@ const GradingDashboard = ({ unit, classroom, onBack }) => {
       const token = await auth.currentUser?.getIdToken();
       if (!token) throw new Error('Authentication required');
 
-      const response = await fetch(`/api/courses/${unit.id}/lessons/${lessonIndex}/grade-scale`, {
+      const response = await fetch(`${API_CONFIG.ENDPOINTS.COURSES}/${unit.id}/lessons/${lessonIndex}/grade-scale`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -255,7 +256,7 @@ const GradingDashboard = ({ unit, classroom, onBack }) => {
       const token = await auth.currentUser?.getIdToken();
       if (!token) throw new Error('Authentication required');
 
-      const response = await fetch('/api/grading/grade', {
+      const response = await fetch(`${API_CONFIG.ENDPOINTS.GRADING}/grade`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
