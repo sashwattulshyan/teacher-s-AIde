@@ -134,6 +134,13 @@ router.post(
   ],
   upload.array('files', 10),
   async (req, res) => {
+    console.log('AI generate-lesson request received:', {
+      lessonType: req.body.lessonType,
+      hasFiles: req.files?.length > 0,
+      user: req.user?.uid,
+      timestamp: new Date().toISOString()
+    });
+    
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       const list = errors.array();

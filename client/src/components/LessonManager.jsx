@@ -385,6 +385,12 @@ const LessonManager = ({ course, classroom, onBack }) => {
     e.preventDefault();
     setAiError('');
     setAiGenerating(true);
+    setAiError(''); // Clear any previous errors
+    
+    // Show progress message for long-running requests
+    const progressInterval = setInterval(() => {
+      setAiError('AI is generating your lesson... This may take up to 5 minutes for complex content.');
+    }, 30000); // Update every 30 seconds
     
     try {
       const token = await getAuthToken();
@@ -435,13 +441,17 @@ const LessonManager = ({ course, classroom, onBack }) => {
 
       const endpoint = isQuizLike ? 'generate-quiz' : 'generate-lesson';
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
+      const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout
       
       // Debug: Log what's being sent
-              for (let [key, value] of formData.entries()) {
-        }
+      console.log('AI Generation Request:', {
+        endpoint: `${API_CONFIG.ENDPOINTS.AI}/${endpoint}`,
+        lessonType: aiLessonType,
+        isQuizLike,
+        hasFiles: (aiNewFiles || []).length > 0
+      });
       
-              const res = await fetch(`${API_CONFIG.ENDPOINTS.AI}/${endpoint}`, {
+      const res = await fetch(`${API_CONFIG.ENDPOINTS.AI}/${endpoint}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -450,10 +460,19 @@ const LessonManager = ({ course, classroom, onBack }) => {
       
       clearTimeout(timeoutId);
       
+      console.log('AI Generation Response:', {
+        status: res.status,
+        statusText: res.statusText,
+        ok: res.ok,
+        contentType: res.headers.get('content-type')
+      });
+      
       let data;
       try {
         data = await res.json();
+        console.log('AI Generation Data:', data);
       } catch (parseError) {
+        console.error('JSON Parse Error:', parseError);
         throw new Error(`Server response error: ${res.status} ${res.statusText}`);
       }
       
@@ -482,12 +501,13 @@ const LessonManager = ({ course, classroom, onBack }) => {
       }
     } catch (err) {
       if (err.name === 'AbortError') {
-        setAiError('Request timed out. Please try again.');
+        setAiError('Request timed out after 5 minutes. AI generation is taking longer than expected. Please try again with less content or simpler objectives.');
       } else {
         console.error('AI generation error:', err);
         setAiError(err.message || 'Failed to generate content');
       }
     } finally {
+      clearInterval(progressInterval);
       setAiGenerating(false);
     }
   };
