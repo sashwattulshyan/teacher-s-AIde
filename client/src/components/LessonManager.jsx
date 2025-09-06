@@ -1376,6 +1376,12 @@ const LessonManager = ({ course, classroom, onBack }) => {
               <button className="btn-primary small" onClick={() => addPreviewLessonToCourse()}>Add to Course</button>
               <button 
                 className="btn-secondary small" 
+                onClick={() => handleStudentView(previewLesson)}
+              >
+                👁️ Student View
+              </button>
+              <button 
+                className="btn-secondary small" 
                 onClick={() => setEditingPreviewLesson(previewLesson)}
               >
                 ✏️ Edit
@@ -1816,8 +1822,109 @@ const LessonManager = ({ course, classroom, onBack }) => {
 
               {(editingPreviewLesson.type === 'quiz' || editingPreviewLesson.type === 'test') && (
                 <div className="form-group">
-                  <label>Questions</label>
-                  <p className="form-help">This lesson has {editingPreviewLesson.questions?.length || 0} questions. To edit questions, add this lesson to the course first and then edit it from the course editor.</p>
+                  <label>Questions ({editingPreviewLesson.questions?.length || 0} total)</label>
+                  <div className="questions-editor">
+                    {editingPreviewLesson.questions?.map((question, qIndex) => (
+                      <div key={qIndex} className="question-editor">
+                        <div className="question-header">
+                          <h4>Question {qIndex + 1}</h4>
+                          <button 
+                            type="button"
+                            className="btn-danger small"
+                            onClick={() => {
+                              const updatedQuestions = editingPreviewLesson.questions.filter((_, index) => index !== qIndex);
+                              setEditingPreviewLesson({
+                                ...editingPreviewLesson,
+                                questions: updatedQuestions
+                              });
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                        
+                        <div className="form-group">
+                          <label>Question Text</label>
+                          <textarea 
+                            value={question.question || ''} 
+                            onChange={(e) => {
+                              const updatedQuestions = [...editingPreviewLesson.questions];
+                              updatedQuestions[qIndex] = {
+                                ...question,
+                                question: e.target.value
+                              };
+                              setEditingPreviewLesson({
+                                ...editingPreviewLesson,
+                                questions: updatedQuestions
+                              });
+                            }}
+                            placeholder="Enter the question..."
+                            rows="3"
+                          />
+                        </div>
+                        
+                        <div className="form-group">
+                          <label>Options</label>
+                          {question.options?.map((option, oIndex) => (
+                            <div key={oIndex} className="option-editor">
+                              <input 
+                                type="radio" 
+                                name={`correct_${qIndex}`}
+                                checked={question.correctAnswer === oIndex}
+                                onChange={() => {
+                                  const updatedQuestions = [...editingPreviewLesson.questions];
+                                  updatedQuestions[qIndex] = {
+                                    ...question,
+                                    correctAnswer: oIndex
+                                  };
+                                  setEditingPreviewLesson({
+                                    ...editingPreviewLesson,
+                                    questions: updatedQuestions
+                                  });
+                                }}
+                              />
+                              <input 
+                                type="text" 
+                                value={option || ''} 
+                                onChange={(e) => {
+                                  const updatedQuestions = [...editingPreviewLesson.questions];
+                                  const updatedOptions = [...question.options];
+                                  updatedOptions[oIndex] = e.target.value;
+                                  updatedQuestions[qIndex] = {
+                                    ...question,
+                                    options: updatedOptions
+                                  };
+                                  setEditingPreviewLesson({
+                                    ...editingPreviewLesson,
+                                    questions: updatedQuestions
+                                  });
+                                }}
+                                placeholder={`Option ${oIndex + 1}`}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                    
+                    <button 
+                      type="button"
+                      className="btn-secondary"
+                      onClick={() => {
+                        const newQuestion = {
+                          question: '',
+                          options: ['', '', '', ''],
+                          correctAnswer: 0
+                        };
+                        setEditingPreviewLesson({
+                          ...editingPreviewLesson,
+                          questions: [...(editingPreviewLesson.questions || []), newQuestion]
+                        });
+                      }}
+                    >
+                      + Add Question
+                    </button>
+                  </div>
                 </div>
               )}
 
