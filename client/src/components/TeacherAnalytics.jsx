@@ -122,6 +122,7 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
               });
               if (progressResponse.ok) {
                 const progress = await progressResponse.json();
+                console.log(`Progress data for student ${student.id} in unit ${unit.id}:`, progress);
                 return { unitId: unit.id, progress };
               } else {
                 console.error(`Failed to fetch progress for student ${student.id} in unit ${unit.id}:`, progressResponse.status);
@@ -185,6 +186,11 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
   const calculateEngagementMetrics = (stats, unitProgress, units) => {
     if (!stats) return { level: 'Low', score: 0, lastActive: null };
 
+    console.log('=== ENGAGEMENT CALCULATION DEBUG ===');
+    console.log('Stats:', stats);
+    console.log('Unit Progress:', unitProgress);
+    console.log('Units:', units);
+
     let engagementScore = 0;
 
     // Lesson completion engagement (90% weight) - primary focus
@@ -226,12 +232,15 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
       const testScores = [];
       
       Object.values(unitProgress).forEach(progress => {
+        console.log('Progress data for quiz scores:', progress);
         if (progress?.quizScores) {
+          console.log('Found quizScores:', progress.quizScores);
           Object.values(progress.quizScores).forEach(score => {
             quizScores.push(score);
           });
         }
         if (progress?.testScores) {
+          console.log('Found testScores:', progress.testScores);
           Object.values(progress.testScores).forEach(score => {
             testScores.push(score);
           });

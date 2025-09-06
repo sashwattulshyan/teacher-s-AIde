@@ -20,7 +20,7 @@ const LandingPage = () => {
         <div className="hero-content">
           <h1 className="hero-title">
             Welcome to
-            <span className="highlight"> Teachers AIde</span>
+            <span className="highlight"> Teachers <span className="ai-highlight">AI</span>de</span>
           </h1>
           <p className="hero-subtitle">
             Your AI-powered teaching assistant that helps you create engaging courses, track student progress, 

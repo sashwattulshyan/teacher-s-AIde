@@ -41,6 +41,26 @@
   background-clip: text;
 }
 
+.ai-highlight {
+  background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bcf7f, #4d9de0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 900;
+  font-size: 1.1em;
+  text-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+  animation: aiGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes aiGlow {
+  from {
+    text-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+  }
+  to {
+    text-shadow: 0 0 30px rgba(255, 107, 107, 0.6), 0 0 40px rgba(77, 157, 224, 0.3);
+  }
+}
+
 .hero-subtitle {
   font-size: 1.375rem;
   line-height: 1.6;
