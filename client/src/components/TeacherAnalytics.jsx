@@ -617,9 +617,22 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
                         
                         if (quizTestLessons.length === 0) return null;
                         
-                        return quizTestLessons.map((lesson) => {
+                        return quizTestLessons.map((lesson, filteredIndex) => {
                           // Find the actual lesson index in the full unit.lessons array
-                          const actualLessonIndex = unit.lessons.findIndex(l => l.id === lesson.id);
+                          let actualLessonIndex = unit.lessons.findIndex(l => l.id === lesson.id);
+                          
+                          // Fallback: if findIndex returns -1 or 0 for all lessons, use the filtered index
+                          // This suggests lessons might not have unique IDs or there's a data issue
+                          if (actualLessonIndex === -1 || (filteredIndex > 0 && actualLessonIndex === 0)) {
+                            console.warn('Lesson ID not found or duplicate, using filtered index as fallback:', {
+                              lessonTitle: lesson.title,
+                              lessonId: lesson.id,
+                              filteredIndex,
+                              actualLessonIndex
+                            });
+                            actualLessonIndex = filteredIndex;
+                          }
+                          
                           const gradeKey = `${lesson.type}_${actualLessonIndex}`;
                           const grade = grades[gradeKey];
                           
@@ -676,8 +689,14 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
                     const quizTestLessons = unit.lessons?.filter(lesson => 
                       lesson.type === 'quiz' || lesson.type === 'test'
                     ) || [];
-                    return quizTestLessons.every((lesson) => {
-                      const actualLessonIndex = unit.lessons.findIndex(l => l.id === lesson.id);
+                    return quizTestLessons.every((lesson, filteredIndex) => {
+                      let actualLessonIndex = unit.lessons.findIndex(l => l.id === lesson.id);
+                      
+                      // Use same fallback logic as above
+                      if (actualLessonIndex === -1 || (filteredIndex > 0 && actualLessonIndex === 0)) {
+                        actualLessonIndex = filteredIndex;
+                      }
+                      
                       const gradeKey = `${lesson.type}_${actualLessonIndex}`;
                       return !grades[gradeKey];
                     });
