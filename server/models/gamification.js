@@ -344,7 +344,8 @@ class GamificationSystem {
         videoSubmissions: progress.videoSubmissions || {},
         discussionResponses: progress.discussionResponses || {},
         projectSubmissions: progress.projectSubmissions || {},
-        workshopParticipation: progress.workshopParticipation || {}
+        workshopParticipation: progress.workshopParticipation || {},
+        grades: progress.grades || {}
       };
     } catch (error) {
       console.error('Error getting user progress:', error);

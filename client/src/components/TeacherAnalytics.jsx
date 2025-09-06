@@ -606,7 +606,10 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
                           unitTitle: unit.title,
                           progress,
                           grades,
-                          studentId: selectedStudent.id
+                          studentId: selectedStudent.id,
+                          progressKeys: Object.keys(progress || {}),
+                          gradesKeys: Object.keys(grades || {}),
+                          hasGrades: Object.keys(grades || {}).length > 0
                         });
                         
                         // Get quiz and test lessons from this unit
