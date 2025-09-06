@@ -617,9 +617,20 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
                         
                         if (quizTestLessons.length === 0) return null;
                         
-                        return quizTestLessons.map((lesson, lessonIndex) => {
-                          const gradeKey = `${lesson.type}_${lessonIndex}`;
+                        return quizTestLessons.map((lesson) => {
+                          // Find the actual lesson index in the full unit.lessons array
+                          const actualLessonIndex = unit.lessons.findIndex(l => l.id === lesson.id);
+                          const gradeKey = `${lesson.type}_${actualLessonIndex}`;
                           const grade = grades[gradeKey];
+                          
+                          console.log('Grade Lookup Debug:', {
+                            lessonTitle: lesson.title,
+                            lessonType: lesson.type,
+                            actualLessonIndex,
+                            gradeKey,
+                            grade,
+                            allGradeKeys: Object.keys(grades)
+                          });
                           
                           if (!grade) return null;
                           
@@ -633,7 +644,7 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
                                                    percentage >= 40 ? 'Fair' : 'Needs Improvement';
                     
                     return (
-                            <tr key={`${unit.id}-${lessonIndex}`}>
+                            <tr key={`${unit.id}-${actualLessonIndex}`}>
                               <td>{unit.title}</td>
                               <td>{lesson.title}</td>
                               <td className="score-cell">{grade.grade}</td>
@@ -663,8 +674,9 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
                     const quizTestLessons = unit.lessons?.filter(lesson => 
                       lesson.type === 'quiz' || lesson.type === 'test'
                     ) || [];
-                    return quizTestLessons.every((lesson, lessonIndex) => {
-                      const gradeKey = `${lesson.type}_${lessonIndex}`;
+                    return quizTestLessons.every((lesson) => {
+                      const actualLessonIndex = unit.lessons.findIndex(l => l.id === lesson.id);
+                      const gradeKey = `${lesson.type}_${actualLessonIndex}`;
                       return !grades[gradeKey];
                     });
                   }) && (
