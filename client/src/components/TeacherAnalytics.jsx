@@ -224,58 +224,8 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
       engagementScore: engagementScore
     });
 
-    // Quiz performance engagement (10% weight) - small factor for scores
-    let quizPerformanceRatio = 0;
-    if (stats.quizzesCompleted > 0) {
-      // Calculate average quiz score if available, otherwise use completion rate
-      const quizScores = [];
-      const testScores = [];
-      
-      Object.values(unitProgress).forEach(progress => {
-        console.log('Progress data for quiz scores:', progress);
-        if (progress?.quizScores && Object.keys(progress.quizScores).length > 0) {
-          console.log('Found quizScores:', progress.quizScores);
-          Object.values(progress.quizScores).forEach(score => {
-            quizScores.push(score);
-          });
-        }
-        if (progress?.testScores && Object.keys(progress.testScores).length > 0) {
-          console.log('Found testScores:', progress.testScores);
-          Object.values(progress.testScores).forEach(score => {
-            testScores.push(score);
-          });
-        }
-      });
-      
-      const allScores = [...quizScores, ...testScores];
-      
-      if (allScores.length > 0) {
-        const avgScore = allScores.reduce((sum, score) => sum + score, 0) / allScores.length;
-        quizPerformanceRatio = avgScore / 100; // Normalize to 100%
-        console.log('Quiz Performance Debug:', {
-          quizScores,
-          testScores,
-          allScores,
-          avgScore,
-          quizPerformanceRatio: quizPerformanceRatio * 100
-        });
-      } else {
-        // Fallback to quiz completion rate if no scores available
-        const totalQuizzesAndTests = units.reduce((total, unit) => {
-          return total + (unit.lessons?.filter(lesson => 
-            lesson.type === 'quiz' || lesson.type === 'test'
-          ).length || 0);
-        }, 0);
-        quizPerformanceRatio = Math.min(stats.quizzesCompleted / Math.max(totalQuizzesAndTests, 1), 1);
-        console.log('Quiz Performance Fallback Debug:', {
-          statsQuizzesCompleted: stats.quizzesCompleted,
-          totalQuizzesAndTests,
-          quizPerformanceRatio: quizPerformanceRatio * 100,
-          unitProgress: Object.keys(unitProgress).length
-        });
-      }
-    }
-    engagementScore += quizPerformanceRatio * 10;
+    // Quiz performance removed from engagement calculation
+    // Will be shown separately in dedicated quiz section
 
     // Determine engagement level
     let level = 'Low';
@@ -288,8 +238,7 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
       lastActive: stats.lastUpdated || stats.lastLoginDate,
       totalActivities: completedLessons,
       totalPossibleActivities: totalLessons,
-      lessonRatio: Math.round(lessonRatio * 100),
-      quizPerformanceRatio: Math.round(quizPerformanceRatio * 100)
+      lessonRatio: Math.round(lessonRatio * 100)
     };
   };
 
@@ -625,39 +574,88 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
                 </div>
               </div>
 
-              {/* Test and Quiz Scores */}
+              {/* Teacher Grades */}
               <div className="assessment-scores">
-                <h5>Test and Quiz Scores</h5>
-                <div className="scores-list">
-                  {units.map(unit => {
+                <h5>Teacher Grades</h5>
+                <div className="grades-table-container">
+                  <table className="grades-table">
+                    <thead>
+                      <tr>
+                        <th>Unit</th>
+                        <th>Assessment</th>
+                        <th>Student Score</th>
+                        <th>Grade Scale</th>
+                        <th>Percentage</th>
+                        <th>Teacher Performance</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {units.map(unit => {
+                        const progress = studentProgress[selectedStudent.id]?.[unit.id];
+                        const grades = progress?.grades || {};
+                        
+                        // Get quiz and test lessons from this unit
+                        const quizTestLessons = unit.lessons?.filter(lesson => 
+                          lesson.type === 'quiz' || lesson.type === 'test'
+                        ) || [];
+                        
+                        if (quizTestLessons.length === 0) return null;
+                        
+                        return quizTestLessons.map((lesson, lessonIndex) => {
+                          const gradeKey = `${lesson.type}_${lessonIndex}`;
+                          const grade = grades[gradeKey];
+                          
+                          if (!grade) return null;
+                          
+                          const percentage = grade.gradeScale > 0 ? 
+                            Math.round((grade.grade / grade.gradeScale) * 100) : 0;
+                          
+                          // Calculate teacher performance (how well the teacher graded)
+                          // This could be based on various factors - for now, we'll use a simple metric
+                          const teacherPerformance = percentage >= 80 ? 'Excellent' : 
+                                                   percentage >= 60 ? 'Good' : 
+                                                   percentage >= 40 ? 'Fair' : 'Needs Improvement';
+                          
+                          return (
+                            <tr key={`${unit.id}-${lessonIndex}`}>
+                              <td>{unit.title}</td>
+                              <td>{lesson.title}</td>
+                              <td className="score-cell">{grade.grade}</td>
+                              <td className="scale-cell">{grade.gradeScale}</td>
+                              <td className="percentage-cell">
+                                <span className={`percentage ${percentage >= 80 ? 'excellent' : 
+                                                               percentage >= 60 ? 'good' : 
+                                                               percentage >= 40 ? 'fair' : 'poor'}`}>
+                                  {percentage}%
+                                </span>
+                              </td>
+                              <td className="performance-cell">
+                                <span className={`performance ${teacherPerformance.toLowerCase().replace(' ', '-')}`}>
+                                  {teacherPerformance}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        });
+                      }).flat().filter(Boolean)}
+                    </tbody>
+                  </table>
+                  
+                  {units.every(unit => {
                     const progress = studentProgress[selectedStudent.id]?.[unit.id];
-                    const quizScores = progress?.quizScores || {};
-                    const testScores = progress?.testScores || {};
-                    
-                    const hasScores = Object.keys(quizScores).length > 0 || Object.keys(testScores).length > 0;
-                    
-                    if (!hasScores) return null;
-                    
-                    return (
-                      <div key={unit.id} className="unit-scores">
-                        <h6>{unit.title}</h6>
-                        <div className="score-items">
-                          {Object.entries(quizScores).map(([lessonIndex, score]) => (
-                            <div key={`quiz-${lessonIndex}`} className="score-item">
-                              <span>Quiz {parseInt(lessonIndex) + 1}:</span>
-                              <span className="score">{score}%</span>
-                            </div>
-                          ))}
-                          {Object.entries(testScores).map(([lessonIndex, score]) => (
-                            <div key={`test-${lessonIndex}`} className="score-item">
-                              <span>Test {parseInt(lessonIndex) + 1}:</span>
-                              <span className="score">{score}%</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })}
+                    const grades = progress?.grades || {};
+                    const quizTestLessons = unit.lessons?.filter(lesson => 
+                      lesson.type === 'quiz' || lesson.type === 'test'
+                    ) || [];
+                    return quizTestLessons.every((lesson, lessonIndex) => {
+                      const gradeKey = `${lesson.type}_${lessonIndex}`;
+                      return !grades[gradeKey];
+                    });
+                  }) && (
+                    <div className="no-grades">
+                      <p>No teacher grades available yet. Grades will appear here once the teacher grades submitted work in the grading section.</p>
+                    </div>
+                  )}
                 </div>
               </div>
 

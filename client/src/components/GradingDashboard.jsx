@@ -505,8 +505,8 @@ const GradingDashboard = ({ unit, classroom, onBack }) => {
                                           {oIndex === question.correctAnswer && (
                                             <span className="answer-indicator correct">Correct Answer</span>
                                           )}
-                                        </div>
-                                      ))}
+                          </div>
+                        ))}
                                     </div>
                                     
                                     <div className="question-feedback">
