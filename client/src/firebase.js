@@ -5,13 +5,12 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDIZom56bXvzj49NCVriDGZ_W4ZeJAdSx8",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "gen-lang-client-0750615670.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "gen-lang-client-0750615670",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "gen-lang-client-0750615670.firebasestorage.app",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "1003531388648",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:1003531388648:web:f74d4b4adcb0402054ab5d",
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-7F1SE9B3NH"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyAWIOlNqFxPKam4lXzEzcQEgqewvYy6f_Q",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "teachers-aide-app.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "teachers-aide-app",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "teachers-aide-app.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "1053365795172",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:1053365795172:web:50c101ade1bf3e2e1a6271"
 };
 
 const app = initializeApp(firebaseConfig);
