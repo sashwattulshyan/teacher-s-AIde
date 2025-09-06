@@ -1427,9 +1427,8 @@ const LessonManager = ({ course, classroom, onBack }) => {
                 ))}
                 <div className="student-view-button-container">
                   <button 
-                    className="btn-primary small"
+                    className="btn-primary"
                     onClick={() => handleStudentView(previewLesson)}
-                    style={{ fontSize: '0.875rem', padding: '8px 16px' }}
                   >
                     👁️ Student View
                   </button>
@@ -1573,9 +1572,8 @@ const LessonManager = ({ course, classroom, onBack }) => {
                     <p className="question-count"><strong>{lesson.questions?.length || 0} questions</strong></p>
                     <div className="student-view-button-container">
                       <button 
-                        className="btn-primary small"
+                        className="btn-primary"
                         onClick={() => handleStudentView(lesson)}
-                        style={{ fontSize: '0.875rem', padding: '6px 12px' }}
                       >
                         👁️ Student View
                       </button>
@@ -1587,9 +1585,8 @@ const LessonManager = ({ course, classroom, onBack }) => {
                     <p className="question-count"><strong>{lesson.questions?.length || 0} questions</strong></p>
                     <div className="student-view-button-container">
                       <button 
-                        className="btn-primary small"
+                        className="btn-primary"
                         onClick={() => handleStudentView(lesson)}
-                        style={{ fontSize: '0.875rem', padding: '6px 12px' }}
                       >
                         👁️ Student View
                       </button>

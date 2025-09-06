@@ -210,24 +210,27 @@
 
 /* Student View button */
 .markdown-student-view {
-  background: var(--accent-primary, #007bff);
+  background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.875rem;
-  margin-top: 0.5rem;
+  font-weight: 500;
+  margin-top: 0.75rem;
   transition: all 0.2s ease;
-  display: inline-flex;
+  display: block;
+  width: 100%;
+  text-align: center;
   align-items: center;
   gap: 0.5rem;
 }
 
 .markdown-student-view:hover {
-  background: var(--accent-secondary, #0056b3);
+  background: linear-gradient(135deg, #5b21b6 0%, #4c1d95 100%);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
 }
 
 /* Read More/Less buttons */
