@@ -19,12 +19,12 @@ const LandingPage = () => {
       <section className="hero">
         <div className="hero-content">
           <h1 className="hero-title">
-            Transform Education with
-            <span className="highlight"> AI-Powered Learning</span>
+            Welcome to
+            <span className="highlight"> Teachers AIde</span>
           </h1>
           <p className="hero-subtitle">
-            Create engaging courses, track student progress, and deliver personalized learning experiences 
-            with the power of artificial intelligence. Access your courses from any computer, anywhere.
+            Your AI-powered teaching assistant that helps you create engaging courses, track student progress, 
+            and deliver personalized learning experiences. Access your courses from any computer, anywhere.
           </p>
           <div className="hero-buttons">
             <button className="btn-primary" onClick={handleGetStarted}>
@@ -49,7 +49,7 @@ const LandingPage = () => {
 
       {/* Features Section */}
       <section className="features">
-        <h2 className="section-title">Why Choose Our AI-Powered LMS?</h2>
+        <h2 className="section-title">Why Choose Teachers AIde?</h2>
         <div className="features-grid">
           <div className="feature-card">
             <div className="feature-icon">🎯</div>
@@ -115,7 +115,7 @@ const LandingPage = () => {
       <section className="cta-section">
         <div className="cta-content">
           <h2>Ready to Transform Your Teaching?</h2>
-          <p>Join thousands of educators who are already using AI to create better learning experiences on desktop.</p>
+          <p>Join thousands of educators who are already using Teachers AIde to create better learning experiences on desktop.</p>
           <div className="cta-buttons">
             <button className="btn-primary large" onClick={handleGetStarted}>
               Get Started

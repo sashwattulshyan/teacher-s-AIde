@@ -113,11 +113,48 @@ const LessonViewer = ({ course, onBack, onLessonComplete, initialLessonIndex = 0
   };
 
   const submitQuiz = async () => {
+    // Calculate quiz score
+    const questions = currentLesson?.questions || [];
+    let correct = 0;
+    questions.forEach((question, qIndex) => {
+      const studentAnswer = quizAnswers[`${currentLessonIndex}_${qIndex}`];
+      if (studentAnswer === question.correctAnswer) {
+        correct++;
+      }
+    });
+    const score = questions.length > 0 ? Math.round((correct / questions.length) * 100) : 0;
+    
+    // Store quiz submission and score
     setQuizSubmitted(prev => ({
       ...prev,
       [currentLessonIndex]: true
     }));
-    await saveProgress({ quizSubmitted: { ...quizSubmitted, [currentLessonIndex]: true } });
+    
+    // Store quiz score in the appropriate field based on lesson type
+    const scoreField = currentLesson.type === 'test' ? 'testScores' : 'quizScores';
+    const currentScores = {};
+    // Get existing scores from progress
+    const progressRef = doc(db, "studentProgress", `${user.uid}_${course.id}`);
+    const progressSnap = await getDoc(progressRef);
+    if (progressSnap.exists()) {
+      const existingScores = progressSnap.data()[scoreField] || {};
+      Object.assign(currentScores, existingScores);
+    }
+    currentScores[currentLessonIndex] = score;
+    
+    console.log('Quiz Score Calculated:', {
+      lessonIndex: currentLessonIndex,
+      lessonType: currentLesson.type,
+      score,
+      correct,
+      totalQuestions: questions.length,
+      scoreField
+    });
+    
+    await saveProgress({ 
+      quizSubmitted: { ...quizSubmitted, [currentLessonIndex]: true },
+      [scoreField]: currentScores
+    });
     markLessonComplete();
   };
 

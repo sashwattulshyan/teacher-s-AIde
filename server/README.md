@@ -1,4 +1,4 @@
-# Your Edu App Backend
+# Teachers AIde Backend
 
 ## Features
 - Custom authentication endpoints (register, login, etc.)

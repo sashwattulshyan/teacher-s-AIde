@@ -1,6 +1,6 @@
-# 🎓 Your Edu App
+# 🎓 Teachers AIde
 
-A comprehensive education platform for teachers and students, built with React, Express.js, and Firebase.
+Your AI-powered teaching assistant that helps you create engaging courses, track student progress, and deliver personalized learning experiences. Built with React, Express.js, and Firebase.
 
 ## 🌟 Features
 
@@ -59,8 +59,8 @@ A comprehensive education platform for teachers and students, built with React, 
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/your-edu-app.git
-cd your-edu-app
+git clone https://github.com/yourusername/teachers-aide.git
+cd teachers-aide
 ```
 
 2. **Install dependencies**
@@ -123,7 +123,7 @@ npx firebase deploy --only hosting
 ## 📁 Project Structure
 
 ```
-your-edu-app/
+teachers-aide/
 ├── client/                 # React frontend
 │   ├── src/
 │   │   ├── components/     # React components

@@ -12,7 +12,7 @@ Your code is already prepared for Render deployment!
 4. **Select**: "Web Service"
 5. **Connect**: Your GitHub repository
 6. **Configure**:
-   - **Name**: `your-edu-app-backend`
+   - **Name**: `teachers-aide-backend`
    - **Root Directory**: `server`
    - **Runtime**: `Node`
    - **Build Command**: `npm install`

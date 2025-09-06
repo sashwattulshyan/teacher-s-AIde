@@ -189,29 +189,81 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
 
     // Lesson completion engagement (90% weight) - primary focus
     const totalLessons = units.reduce((total, unit) => total + (unit.lessons?.length || 0), 0);
-    const completedLessons = stats.lessonsCompleted || 0;
-    const lessonRatio = totalLessons > 0 ? completedLessons / totalLessons : 0;
+    
+    // Calculate actual completed lessons by checking against current unit structure
+    let actualCompletedLessons = 0;
+    units.forEach(unit => {
+      const progress = unitProgress[unit.id];
+      if (progress && progress.completedLessons) {
+        // Only count lessons that still exist in the current unit structure
+        const validCompletedLessons = progress.completedLessons.filter(lessonIndex => 
+          lessonIndex < (unit.lessons?.length || 0)
+        );
+        actualCompletedLessons += validCompletedLessons.length;
+      }
+    });
+    
+    // Use the smaller of stats.lessonsCompleted or actualCompletedLessons to prevent over-counting
+    const completedLessons = Math.min(stats.lessonsCompleted || 0, actualCompletedLessons);
+    const lessonRatio = totalLessons > 0 ? Math.min(completedLessons / totalLessons, 1) : 0;
     engagementScore += lessonRatio * 90;
+    
+    // Debug logging for engagement calculation
+    console.log('Engagement Debug:', {
+      statsLessonsCompleted: stats.lessonsCompleted,
+      actualCompletedLessons,
+      completedLessons,
+      totalLessons,
+      lessonRatio: lessonRatio * 100,
+      engagementScore: engagementScore
+    });
 
     // Quiz performance engagement (10% weight) - small factor for scores
     let quizPerformanceRatio = 0;
     if (stats.quizzesCompleted > 0) {
       // Calculate average quiz score if available, otherwise use completion rate
       const quizScores = [];
+      const testScores = [];
+      
       Object.values(unitProgress).forEach(progress => {
         if (progress?.quizScores) {
           Object.values(progress.quizScores).forEach(score => {
             quizScores.push(score);
           });
         }
+        if (progress?.testScores) {
+          Object.values(progress.testScores).forEach(score => {
+            testScores.push(score);
+          });
+        }
       });
       
-      if (quizScores.length > 0) {
-        const avgQuizScore = quizScores.reduce((sum, score) => sum + score, 0) / quizScores.length;
-        quizPerformanceRatio = avgQuizScore / 100; // Normalize to 100%
+      const allScores = [...quizScores, ...testScores];
+      
+      if (allScores.length > 0) {
+        const avgScore = allScores.reduce((sum, score) => sum + score, 0) / allScores.length;
+        quizPerformanceRatio = avgScore / 100; // Normalize to 100%
+        console.log('Quiz Performance Debug:', {
+          quizScores,
+          testScores,
+          allScores,
+          avgScore,
+          quizPerformanceRatio: quizPerformanceRatio * 100
+        });
       } else {
         // Fallback to quiz completion rate if no scores available
-        quizPerformanceRatio = Math.min(stats.quizzesCompleted / Math.max(totalLessons * 0.3, 1), 1);
+        const totalQuizzesAndTests = units.reduce((total, unit) => {
+          return total + (unit.lessons?.filter(lesson => 
+            lesson.type === 'quiz' || lesson.type === 'test'
+          ).length || 0);
+        }, 0);
+        quizPerformanceRatio = Math.min(stats.quizzesCompleted / Math.max(totalQuizzesAndTests, 1), 1);
+        console.log('Quiz Performance Fallback Debug:', {
+          statsQuizzesCompleted: stats.quizzesCompleted,
+          totalQuizzesAndTests,
+          quizPerformanceRatio: quizPerformanceRatio * 100,
+          unitProgress: Object.keys(unitProgress).length
+        });
       }
     }
     engagementScore += quizPerformanceRatio * 10;
@@ -223,7 +275,7 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
 
     return {
       level,
-      score: Math.round(engagementScore),
+      score: Math.min(Math.round(engagementScore), 100), // Cap at 100%
       lastActive: stats.lastUpdated || stats.lastLoginDate,
       totalActivities: completedLessons,
       totalPossibleActivities: totalLessons,

@@ -269,4 +269,68 @@ router.post('/:courseId/:lessonId/progress',
   }
 );
 
+// Clean up invalid lesson completions when lessons are deleted
+router.post('/:courseId/cleanup-progress',
+  authenticateToken,
+  requireRole(['teacher']),
+  async (req, res) => {
+    try {
+      const { courseId } = req.params;
+      
+      // Get the course to check current lesson structure
+      const courseDoc = await db.collection('courses').doc(courseId).get();
+      
+      if (!courseDoc.exists) {
+        return res.status(404).json({
+          error: 'Course not found',
+          message: 'Course does not exist'
+        });
+      }
+      
+      const courseData = courseDoc.data();
+      const currentLessons = courseData.lessons || [];
+      const maxLessonIndex = currentLessons.length - 1;
+      
+      // Get all student progress for this course
+      const progressQuery = db.collection('studentProgress').where('courseId', '==', courseId);
+      const progressSnapshot = await progressQuery.get();
+      
+      let cleanedCount = 0;
+      const cleanupPromises = progressSnapshot.docs.map(async (progressDoc) => {
+        const progressData = progressDoc.data();
+        const completedLessons = progressData.completedLessons || [];
+        
+        // Filter out lesson indices that no longer exist
+        const validCompletedLessons = completedLessons.filter(lessonIndex => 
+          lessonIndex <= maxLessonIndex
+        );
+        
+        // Only update if there were invalid completions
+        if (validCompletedLessons.length !== completedLessons.length) {
+          await progressDoc.ref.update({
+            completedLessons: validCompletedLessons,
+            lessonsCompleted: validCompletedLessons.length,
+            lastUpdated: new Date()
+          });
+          cleanedCount++;
+        }
+      });
+      
+      await Promise.all(cleanupPromises);
+      
+      res.json({
+        message: 'Student progress cleaned up successfully',
+        cleanedProgressCount: cleanedCount,
+        currentLessonCount: currentLessons.length
+      });
+    } catch (error) {
+      console.error('Error cleaning up student progress:', error);
+      res.status(500).json({
+        error: 'Internal server error',
+        message: 'Error cleaning up student progress'
+      });
+    }
+  }
+);
+
 module.exports = router;

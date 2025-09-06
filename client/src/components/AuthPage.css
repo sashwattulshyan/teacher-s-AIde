@@ -20,18 +20,19 @@
 
 .back-button {
   position: absolute;
-  top: -60px;
+  top: -20px;
   left: 0;
   background: rgba(124, 58, 237, 0.1);
   color: #7c3aed;
   border: 1px solid rgba(124, 58, 237, 0.2);
-  padding: 12px 20px;
+  padding: 10px 16px;
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.875rem;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
   font-weight: 500;
+  z-index: 10;
 }
 
 .back-button:hover {
@@ -264,9 +265,9 @@
   }
   
   .back-button {
-    top: -50px;
+    top: -15px;
     font-size: 0.8rem;
-    padding: 10px 16px;
+    padding: 8px 14px;
   }
 }
 
@@ -285,6 +286,22 @@
   
   .submit-button {
     padding: 16px 20px;
+  }
+  
+  .back-button {
+    top: -10px;
+    font-size: 0.75rem;
+    padding: 6px 12px;
+  }
+}
+
+/* Ensure button is visible on very small screens or when zoomed in */
+@media (max-height: 600px) {
+  .back-button {
+    position: relative;
+    top: 0;
+    margin-bottom: 20px;
+    display: inline-block;
   }
 }
 

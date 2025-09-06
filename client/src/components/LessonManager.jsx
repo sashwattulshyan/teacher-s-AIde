@@ -80,6 +80,7 @@ const LessonManager = ({ course, classroom, onBack }) => {
   const [aiGenerating, setAiGenerating] = useState(false);
   const [aiError, setAiError] = useState('');
   const [previewLesson, setPreviewLesson] = useState(null);
+  const [editingPreviewLesson, setEditingPreviewLesson] = useState(null);
   const [autoSaveAfterGenerate, setAutoSaveAfterGenerate] = useState(false);
   
   // Video lesson AI generation state
@@ -301,7 +302,7 @@ const LessonManager = ({ course, classroom, onBack }) => {
   };
 
   const handleDeleteLesson = async (index) => {
-    if (!window.confirm('Are you sure you want to delete this lesson?')) return;
+    if (!window.confirm('Are you sure you want to delete this lesson? This will also clean up any student progress for this lesson.')) return;
 
     try {
       const updatedLessons = lessons.filter((_, i) => i !== index);
@@ -309,6 +310,29 @@ const LessonManager = ({ course, classroom, onBack }) => {
         lessons: updatedLessons
       });
       setLessons(updatedLessons);
+      
+      // Clean up student progress for deleted lesson
+      try {
+        const token = await getAuthToken();
+        const response = await fetch(`${API_CONFIG.ENDPOINTS.LESSONS}/${course.id}/cleanup-progress`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ courseId: course.id })
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          console.log('Student progress cleaned up:', result);
+        } else {
+          console.warn('Failed to clean up student progress, but lesson was deleted');
+        }
+      } catch (cleanupError) {
+        console.warn('Error cleaning up student progress:', cleanupError);
+        // Don't fail the lesson deletion if cleanup fails
+      }
     } catch (err) {
       console.error('Error deleting lesson:', err);
       setError('Failed to delete lesson. Please try again.');
@@ -1190,8 +1214,17 @@ const LessonManager = ({ course, classroom, onBack }) => {
                 <textarea value={aiObjectivesText} onChange={(e) => setAiObjectivesText(e.target.value)} placeholder="One per line" rows="3" />
               </div>
               <div className="form-group">
-                <label>Source Text or Lesson Topic</label>
-                <textarea value={aiSourceText} onChange={(e) => setAiSourceText(e.target.value)} placeholder="Paste any relevant material here or add any guidelines for generation (ie. focus on chapter one of the file, introduction to grammar concepts, etc.)" rows="6" />
+                <label>Source Text or Lesson Topic *</label>
+                <textarea 
+                  value={aiSourceText} 
+                  onChange={(e) => setAiSourceText(e.target.value)} 
+                  placeholder="Paste any relevant material here or add any guidelines for generation (ie. focus on chapter one of the file, introduction to grammar concepts, etc.)" 
+                  rows="6" 
+                  required
+                />
+                {!aiSourceText.trim() && (
+                  <p className="field-required">This field is required to generate content</p>
+                )}
               </div>
 
               {aiLessonType === 'reading' && (
@@ -1315,7 +1348,14 @@ const LessonManager = ({ course, classroom, onBack }) => {
                   setVideoSource('url'); // Reset video source
                   setVideoTitle(''); // Clear video title
                 }} disabled={aiGenerating}>Cancel</button>
-                <button type="submit" className="btn-primary" disabled={aiGenerating}>{aiGenerating ? 'Generating...' : 'Generate'}</button>
+                <button 
+                  type="submit" 
+                  className="btn-primary" 
+                  disabled={aiGenerating || !aiSourceText.trim()}
+                  title={!aiSourceText.trim() ? 'Please provide source text or lesson topic to generate content' : ''}
+                >
+                  {aiGenerating ? 'Generating...' : 'Generate'}
+                </button>
               </div>
 
               {aiError && <p className="error">{aiError}</p>}
@@ -1334,6 +1374,12 @@ const LessonManager = ({ course, classroom, onBack }) => {
             </div>
             <div className="lesson-actions">
               <button className="btn-primary small" onClick={() => addPreviewLessonToCourse()}>Add to Course</button>
+              <button 
+                className="btn-secondary small" 
+                onClick={() => setEditingPreviewLesson(previewLesson)}
+              >
+                ✏️ Edit
+              </button>
               <button 
                 className="btn-secondary small" 
                 onClick={() => {
@@ -1379,6 +1425,15 @@ const LessonManager = ({ course, classroom, onBack }) => {
                     />
                   </div>
                 ))}
+                <div style={{ marginTop: '12px' }}>
+                  <button 
+                    className="btn-secondary small"
+                    onClick={() => handleStudentView(previewLesson)}
+                    style={{ fontSize: '0.875rem', padding: '8px 16px' }}
+                  >
+                    👁️ Student View
+                  </button>
+                </div>
               </div>
             )}
             {previewLesson.type === 'assignment' && (
@@ -1514,10 +1569,28 @@ const LessonManager = ({ course, classroom, onBack }) => {
                   </div>
                 )}
                 {lesson.type === 'quiz' && (
-                  <p><strong>{lesson.questions?.length || 0} questions</strong></p>
+                  <div>
+                    <p><strong>{lesson.questions?.length || 0} questions</strong></p>
+                    <button 
+                      className="btn-secondary small"
+                      onClick={() => handleStudentView(lesson)}
+                      style={{ fontSize: '0.875rem', padding: '6px 12px', marginTop: '8px' }}
+                    >
+                      👁️ Student View
+                    </button>
+                  </div>
                 )}
                 {lesson.type === 'test' && (
-                  <p><strong>{lesson.questions?.length || 0} questions</strong></p>
+                  <div>
+                    <p><strong>{lesson.questions?.length || 0} questions</strong></p>
+                    <button 
+                      className="btn-secondary small"
+                      onClick={() => handleStudentView(lesson)}
+                      style={{ fontSize: '0.875rem', padding: '6px 12px', marginTop: '8px' }}
+                    >
+                      👁️ Student View
+                    </button>
+                  </div>
                 )}
                 {lesson.type === 'assignment' && (
                   <MarkdownRenderer 
@@ -1603,6 +1676,165 @@ const LessonManager = ({ course, classroom, onBack }) => {
           course={course}
           onClose={closeStudentView}
         />
+      )}
+
+      {/* Edit Preview Lesson Modal */}
+      {editingPreviewLesson && (
+        <div className="create-form-overlay">
+          <div className="create-form large">
+            <h3>Edit Preview Lesson</h3>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              setPreviewLesson(editingPreviewLesson);
+              setEditingPreviewLesson(null);
+            }}>
+              <div className="form-group">
+                <label>Lesson Title</label>
+                <input 
+                  type="text" 
+                  value={editingPreviewLesson.title || ''} 
+                  onChange={(e) => setEditingPreviewLesson({
+                    ...editingPreviewLesson,
+                    title: e.target.value
+                  })}
+                  placeholder="Enter lesson title"
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>Lesson Type</label>
+                <select 
+                  value={editingPreviewLesson.type || 'lecture'} 
+                  onChange={(e) => setEditingPreviewLesson({
+                    ...editingPreviewLesson,
+                    type: e.target.value
+                  })}
+                >
+                  <option value="lecture">📚 Lecture</option>
+                  <option value="reading">📖 Reading</option>
+                  <option value="quiz">❓ Quiz</option>
+                  <option value="test">📝 Test</option>
+                  <option value="assignment">📋 Assignment</option>
+                  <option value="video">🎥 Video</option>
+                  <option value="interactive">🎮 Interactive</option>
+                  <option value="discussion">💬 Discussion</option>
+                  <option value="project">🏗️ Project</option>
+                  <option value="workshop">🔧 Workshop</option>
+                </select>
+              </div>
+
+              {/* Content editing based on lesson type */}
+              {editingPreviewLesson.type === 'lecture' && (
+                <div className="form-group">
+                  <label>Content</label>
+                  <textarea 
+                    value={editingPreviewLesson.content || ''} 
+                    onChange={(e) => setEditingPreviewLesson({
+                      ...editingPreviewLesson,
+                      content: e.target.value
+                    })}
+                    placeholder="Enter lecture content..."
+                    rows="8"
+                  />
+                </div>
+              )}
+
+              {editingPreviewLesson.type === 'reading' && (
+                <>
+                  <div className="form-group">
+                    <label>Reading URL</label>
+                    <input 
+                      type="url" 
+                      value={editingPreviewLesson.url || ''} 
+                      onChange={(e) => setEditingPreviewLesson({
+                        ...editingPreviewLesson,
+                        url: e.target.value
+                      })}
+                      placeholder="https://example.com/article"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Description</label>
+                    <textarea 
+                      value={editingPreviewLesson.description || ''} 
+                      onChange={(e) => setEditingPreviewLesson({
+                        ...editingPreviewLesson,
+                        description: e.target.value
+                      })}
+                      placeholder="Describe what students should read and learn..."
+                      rows="6"
+                    />
+                  </div>
+                </>
+              )}
+
+              {editingPreviewLesson.type === 'assignment' && (
+                <div className="form-group">
+                  <label>Description</label>
+                  <textarea 
+                    value={editingPreviewLesson.description || ''} 
+                    onChange={(e) => setEditingPreviewLesson({
+                      ...editingPreviewLesson,
+                      description: e.target.value
+                    })}
+                    placeholder="Enter assignment description..."
+                    rows="6"
+                  />
+                </div>
+              )}
+
+              {editingPreviewLesson.type === 'video' && (
+                <>
+                  <div className="form-group">
+                    <label>Video URL</label>
+                    <input 
+                      type="url" 
+                      value={editingPreviewLesson.videoUrl || ''} 
+                      onChange={(e) => setEditingPreviewLesson({
+                        ...editingPreviewLesson,
+                        videoUrl: e.target.value
+                      })}
+                      placeholder="https://www.youtube.com/watch?v=..."
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Description</label>
+                    <textarea 
+                      value={editingPreviewLesson.description || ''} 
+                      onChange={(e) => setEditingPreviewLesson({
+                        ...editingPreviewLesson,
+                        description: e.target.value
+                      })}
+                      placeholder="Enter video description..."
+                      rows="6"
+                    />
+                  </div>
+                </>
+              )}
+
+              {(editingPreviewLesson.type === 'quiz' || editingPreviewLesson.type === 'test') && (
+                <div className="form-group">
+                  <label>Questions</label>
+                  <p className="form-help">This lesson has {editingPreviewLesson.questions?.length || 0} questions. To edit questions, add this lesson to the course first and then edit it from the course editor.</p>
+                </div>
+              )}
+
+              <div className="form-actions">
+                <button 
+                  type="button" 
+                  className="btn-secondary" 
+                  onClick={() => setEditingPreviewLesson(null)}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn-primary">
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

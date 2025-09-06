@@ -1,6 +1,6 @@
-# React + Vite
+# Teachers AIde - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The frontend application for Teachers AIde, built with React and Vite. This provides the user interface for teachers and students to interact with the AI-powered education platform.
 
 Currently, two official plugins are available:
 

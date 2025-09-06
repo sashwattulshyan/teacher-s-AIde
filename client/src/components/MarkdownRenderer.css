@@ -11,6 +11,7 @@
   word-wrap: break-word;
   overflow-wrap: break-word;
   max-width: 100%;
+  text-align: left;
 }
   
   /* Headings */
@@ -23,6 +24,7 @@
   padding-bottom: 0.5rem;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  text-align: left;
 }
 
 .markdown-h2 {
@@ -32,6 +34,7 @@
   color: var(--text-primary, #ffffff);
   word-wrap: break-word;
   overflow-wrap: break-word;
+  text-align: left;
 }
 
 .markdown-h3 {
@@ -41,6 +44,7 @@
   color: var(--text-primary, #ffffff);
   word-wrap: break-word;
   overflow-wrap: break-word;
+  text-align: left;
 }
 
 .markdown-h4 {
@@ -50,6 +54,7 @@
   color: var(--text-primary, #ffffff);
   word-wrap: break-word;
   overflow-wrap: break-word;
+  text-align: left;
 }
 
 .markdown-h5 {
@@ -59,6 +64,7 @@
   color: var(--text-primary, #ffffff);
   word-wrap: break-word;
   overflow-wrap: break-word;
+  text-align: left;
 }
 
 .markdown-h6 {
@@ -68,6 +74,7 @@
   color: var(--text-secondary, #cccccc);
   word-wrap: break-word;
   overflow-wrap: break-word;
+  text-align: left;
 }
   
   /* Paragraphs */
@@ -77,6 +84,7 @@
   line-height: 1.6;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  text-align: left;
 }
 
 /* Lists */
@@ -84,6 +92,7 @@
 .markdown-ol {
   margin: 0.5rem 0;
   padding-left: 1.5rem;
+  text-align: left;
 }
 
 .markdown-li {
@@ -91,6 +100,7 @@
   color: var(--text-secondary, #cccccc);
   word-wrap: break-word;
   overflow-wrap: break-word;
+  text-align: left;
 }
   
   /* Emphasis */

@@ -141,7 +141,16 @@ const GradingDashboard = ({ unit, classroom, onBack }) => {
         return progress.discussionResponses?.[lessonIndex];
       case 'quiz':
       case 'test':
-        return progress.quizAnswers?.[lessonIndex];
+        // Quiz answers are stored with keys like "lessonIndex_questionIndex"
+        const quizAnswers = progress.quizAnswers || {};
+        const lessonAnswers = {};
+        Object.keys(quizAnswers).forEach(key => {
+          if (key.startsWith(`${lessonIndex}_`)) {
+            const questionIndex = key.split('_')[1];
+            lessonAnswers[questionIndex] = quizAnswers[key];
+          }
+        });
+        return Object.keys(lessonAnswers).length > 0 ? lessonAnswers : null;
       default:
         return null;
     }
@@ -150,6 +159,20 @@ const GradingDashboard = ({ unit, classroom, onBack }) => {
   const getExistingGrade = (studentId, lessonIndex, lessonType) => {
     const gradeKey = `${studentId}_${lessonType}_${lessonIndex}`;
     return grades[gradeKey];
+  };
+
+  const calculateQuizScore = (studentAnswers, questions) => {
+    if (!studentAnswers || !questions || questions.length === 0) return 0;
+    
+    let correct = 0;
+    questions.forEach((question, qIndex) => {
+      const studentAnswer = studentAnswers[qIndex];
+      if (studentAnswer === question.correctAnswer) {
+        correct++;
+      }
+    });
+    
+    return Math.round((correct / questions.length) * 100);
   };
 
   const handleSubmissionClick = (studentId, lessonIndex, lessonType) => {
@@ -441,12 +464,66 @@ const GradingDashboard = ({ unit, classroom, onBack }) => {
                   <div className="content-display">
                     {selectedSubmission.lessonType === 'quiz' || selectedSubmission.lessonType === 'test' ? (
                       <div className="quiz-answers">
-                        {Object.entries(selectedSubmission.content).map(([questionIndex, answer]) => (
-                          <div key={questionIndex} className="quiz-answer">
-                            <strong>Question {parseInt(questionIndex.split('_')[1]) + 1}:</strong>
-                            <span>Answer {answer + 1}</span>
-                          </div>
-                        ))}
+                        {(() => {
+                          const questions = unit.lessons[selectedSubmission.lessonIndex]?.questions || [];
+                          const studentAnswers = selectedSubmission.content;
+                          const score = calculateQuizScore(studentAnswers, questions);
+                          
+                          return (
+                            <div className="quiz-review">
+                              <div className="quiz-score-display">
+                                <h5>Quiz Score: {score}%</h5>
+                                <p>Correct: {Object.values(studentAnswers).filter((answer, qIndex) => 
+                                  answer === questions[qIndex]?.correctAnswer
+                                ).length} / {questions.length}</p>
+                              </div>
+                              
+                              {questions.map((question, qIndex) => {
+                                const studentAnswer = studentAnswers[qIndex];
+                                const isCorrect = studentAnswer === question.correctAnswer;
+                                
+                                return (
+                                  <div key={qIndex} className={`question-review ${isCorrect ? 'correct' : 'incorrect'}`}>
+                                    <h6>Question {qIndex + 1}</h6>
+                                    <p className="question-text">{question.question}</p>
+                                    
+                                    <div className="options-review">
+                                      {question.options.map((option, oIndex) => (
+                                        <div 
+                                          key={oIndex} 
+                                          className={`option-review ${
+                                            oIndex === studentAnswer ? 'student-answer' : ''
+                                          } ${
+                                            oIndex === question.correctAnswer ? 'correct-answer' : ''
+                                          }`}
+                                        >
+                                          <span className="option-letter">{String.fromCharCode(65 + oIndex)}.</span>
+                                          <span className="option-text">{option}</span>
+                                          {oIndex === studentAnswer && (
+                                            <span className="answer-indicator student">Your Answer</span>
+                                          )}
+                                          {oIndex === question.correctAnswer && (
+                                            <span className="answer-indicator correct">Correct Answer</span>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                    
+                                    <div className="question-feedback">
+                                      {isCorrect ? (
+                                        <span className="correct-feedback">✓ Correct!</span>
+                                      ) : (
+                                        <span className="incorrect-feedback">
+                                          ✗ Incorrect. Student selected: {question.options[studentAnswer] || 'No answer'}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
                       </div>
                     ) : (
                       <div className="text-content">

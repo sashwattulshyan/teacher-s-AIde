@@ -126,12 +126,14 @@
   color: var(--text-primary);
   font-size: 1.125rem;
   font-weight: 600;
+  text-align: left;
 }
 
 .content-text {
   line-height: 1.6;
   color: var(--text-primary);
   margin-bottom: 20px;
+  text-align: left;
 }
 
 .key-points {
@@ -139,22 +141,26 @@
   padding: 16px;
   border-radius: 6px;
   border-left: 4px solid var(--accent-primary);
+  text-align: left;
 }
 
 .key-points h5 {
   margin: 0 0 12px 0;
   color: var(--text-primary);
   font-weight: 600;
+  text-align: left;
 }
 
 .key-points ul {
   margin: 0;
   padding-left: 20px;
+  text-align: left;
 }
 
 .key-points li {
   margin-bottom: 8px;
   color: var(--text-primary);
+  text-align: left;
 }
 
 /* Reading Styles */
@@ -163,6 +169,7 @@
   color: var(--text-primary);
   font-size: 1.125rem;
   font-weight: 600;
+  text-align: left;
 }
 
 .reading-link {
@@ -183,6 +190,7 @@
 
 .reading-description {
   margin-bottom: 20px;
+  text-align: left;
 }
 
 .discussion-questions {
@@ -190,22 +198,26 @@
   padding: 16px;
   border-radius: 6px;
   margin-top: 16px;
+  text-align: left;
 }
 
 .discussion-questions h5 {
   margin: 0 0 12px 0;
   color: var(--text-primary);
   font-weight: 600;
+  text-align: left;
 }
 
 .discussion-questions ul {
   margin: 0;
   padding-left: 20px;
+  text-align: left;
 }
 
 .discussion-questions li {
   margin-bottom: 8px;
   color: var(--text-primary);
+  text-align: left;
 }
 
 /* Video Styles */
@@ -214,6 +226,7 @@
   color: var(--text-primary);
   font-size: 1.125rem;
   font-weight: 600;
+  text-align: left;
 }
 
 .video-container {
@@ -266,6 +279,7 @@
 
 .video-description {
   margin-bottom: 20px;
+  text-align: left;
 }
 
 .video-transcript {
@@ -273,12 +287,14 @@
   padding: 16px;
   border-radius: 6px;
   margin-bottom: 20px;
+  text-align: left;
 }
 
 .video-transcript h5 {
   margin: 0 0 12px 0;
   color: var(--text-primary);
   font-weight: 600;
+  text-align: left;
 }
 
 .transcript-text {
@@ -286,6 +302,7 @@
   color: var(--text-primary);
   max-height: 200px;
   overflow-y: auto;
+  text-align: left;
 }
 
 /* Interactive Styles */
@@ -294,17 +311,20 @@
   color: var(--text-primary);
   font-size: 1.125rem;
   font-weight: 600;
+  text-align: left;
 }
 
 .interactive-description {
   margin-bottom: 20px;
   color: var(--text-primary);
+  text-align: left;
 }
 
 .interactive-instructions {
   background: var(--bg-secondary);
   padding: 16px;
   border-radius: 6px;
+  text-align: left;
   margin-bottom: 20px;
   border-left: 4px solid var(--accent-secondary);
 }
@@ -313,26 +333,31 @@
   margin: 0 0 12px 0;
   color: var(--text-primary);
   font-weight: 600;
+  text-align: left;
 }
 
 .interactive-activities {
   margin-bottom: 20px;
+  text-align: left;
 }
 
 .interactive-activities h5 {
   margin: 0 0 12px 0;
   color: var(--text-primary);
   font-weight: 600;
+  text-align: left;
 }
 
 .interactive-activities ol {
   margin: 0;
   padding-left: 20px;
+  text-align: left;
 }
 
 .interactive-activities li {
   margin-bottom: 8px;
   color: var(--text-primary);
+  text-align: left;
 }
 
 .interactive-completion {
@@ -350,11 +375,13 @@
   color: var(--text-primary);
   font-size: 1.125rem;
   font-weight: 600;
+  text-align: left;
 }
 
 .discussion-description {
   margin-bottom: 20px;
   color: var(--text-primary);
+  text-align: left;
 }
 
 .discussion-guidelines {
@@ -363,22 +390,26 @@
   border-radius: 6px;
   margin-bottom: 20px;
   border-left: 4px solid var(--accent-primary);
+  text-align: left;
 }
 
 .discussion-guidelines h5 {
   margin: 0 0 12px 0;
   color: var(--text-primary);
   font-weight: 600;
+  text-align: left;
 }
 
 .discussion-response {
   margin-top: 20px;
+  text-align: left;
 }
 
 .discussion-response h5 {
   margin: 0 0 12px 0;
   color: var(--text-primary);
   font-weight: 600;
+  text-align: left;
 }
 
 .discussion-textarea {
@@ -405,11 +436,13 @@
   color: var(--text-primary);
   font-size: 1.125rem;
   font-weight: 600;
+  text-align: left;
 }
 
 .project-description {
   margin-bottom: 20px;
   color: var(--text-primary);
+  text-align: left;
 }
 
 .project-objectives,
@@ -420,6 +453,7 @@
   padding: 16px;
   border-radius: 6px;
   margin-bottom: 16px;
+  text-align: left;
 }
 
 .project-objectives h5,
@@ -429,6 +463,7 @@
   margin: 0 0 12px 0;
   color: var(--text-primary);
   font-weight: 600;
+  text-align: left;
 }
 
 .project-objectives ul,
@@ -436,6 +471,7 @@
 .project-rubric ul {
   margin: 0;
   padding-left: 20px;
+  text-align: left;
 }
 
 .project-objectives li,
@@ -443,16 +479,19 @@
 .project-rubric li {
   margin-bottom: 8px;
   color: var(--text-primary);
+  text-align: left;
 }
 
 .project-submission {
   margin-top: 20px;
+  text-align: left;
 }
 
 .project-submission h5 {
   margin: 0 0 12px 0;
   color: var(--text-primary);
   font-weight: 600;
+  text-align: left;
 }
 
 .project-textarea {
@@ -479,11 +518,13 @@
   color: var(--text-primary);
   font-size: 1.125rem;
   font-weight: 600;
+  text-align: left;
 }
 
 .workshop-description {
   margin-bottom: 20px;
   color: var(--text-primary);
+  text-align: left;
 }
 
 .workshop-activities,
@@ -492,6 +533,7 @@
   padding: 16px;
   border-radius: 6px;
   margin-bottom: 16px;
+  text-align: left;
 }
 
 .workshop-activities h5,
@@ -499,18 +541,21 @@
   margin: 0 0 12px 0;
   color: var(--text-primary);
   font-weight: 600;
+  text-align: left;
 }
 
 .workshop-activities ol,
 .workshop-materials ul {
   margin: 0;
   padding-left: 20px;
+  text-align: left;
 }
 
 .workshop-activities li,
 .workshop-materials li {
   margin-bottom: 8px;
   color: var(--text-primary);
+  text-align: left;
 }
 
 .workshop-details {
@@ -518,21 +563,25 @@
   padding: 16px;
   border-radius: 6px;
   margin-bottom: 20px;
+  text-align: left;
 }
 
 .workshop-details p {
   margin: 8px 0;
   color: var(--text-primary);
+  text-align: left;
 }
 
 .workshop-participation {
   margin-top: 20px;
+  text-align: left;
 }
 
 .workshop-participation h5 {
   margin: 0 0 12px 0;
   color: var(--text-primary);
   font-weight: 600;
+  text-align: left;
 }
 
 .workshop-textarea {
@@ -596,6 +645,7 @@
   margin-bottom: 16px;
   color: var(--text-primary);
   line-height: 1.5;
+  text-align: left;
 }
 
 .options-list {
@@ -628,6 +678,7 @@
 .option-text {
   flex: 1;
   color: var(--text-primary);
+  text-align: left;
 }
 
 .answer-indicator {
@@ -671,12 +722,14 @@
   color: var(--text-primary);
   font-size: 1.125rem;
   font-weight: 600;
+  text-align: left;
 }
 
 .assignment-description {
   margin-bottom: 16px;
   color: var(--text-primary);
   line-height: 1.6;
+  text-align: left;
 }
 
 .due-date,
@@ -684,6 +737,7 @@
   color: var(--text-secondary);
   font-size: 0.875rem;
   margin-bottom: 8px;
+  text-align: left;
 }
 
 .assignment-rubric {
@@ -692,28 +746,33 @@
   border-radius: 6px;
   margin-bottom: 20px;
   border-left: 4px solid var(--accent-secondary);
+  text-align: left;
 }
 
 .assignment-rubric h5 {
   margin: 0 0 12px 0;
   color: var(--text-primary);
   font-weight: 600;
+  text-align: left;
 }
 
 .assignment-rubric ul {
   margin: 0;
   padding-left: 20px;
+  text-align: left;
 }
 
 .assignment-rubric li {
   margin-bottom: 8px;
   color: var(--text-primary);
+  text-align: left;
 }
 
 .assignment-submission h5 {
   margin: 0 0 12px 0;
   color: var(--text-primary);
   font-weight: 600;
+  text-align: left;
 }
 
 .assignment-textarea {

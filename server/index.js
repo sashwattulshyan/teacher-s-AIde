@@ -175,7 +175,7 @@ try {
   console.log('YouTube router imported successfully');
   
   app.use('/api/youtube', (req, res, next) => {
-    console.log('YouTube route accessed:', req.method, req.originalUrl);
+    console.log('YouTube route accessed:', req.method, req.originalUrl, 'at', new Date().toISOString());
     next();
   }, youtubeRouter);
   console.log('YouTube routes loaded successfully');

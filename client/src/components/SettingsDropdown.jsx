@@ -42,7 +42,6 @@ const SettingsDropdown = ({ currentUser }) => {
       const userId = currentUser.uid;
       // 1. Call server endpoint to delete all user data
       const token = await currentUser.getIdToken();
-      + '...');
       
       let response;
       try {
@@ -93,7 +92,7 @@ const SettingsDropdown = ({ currentUser }) => {
             try {
               await signOut(auth);
             } catch (signOutError) {
-              :', signOutError.message);
+              console.error('Sign out error:', signOutError.message);
             }
             authDeletionSuccess = true;
           }
@@ -101,7 +100,7 @@ const SettingsDropdown = ({ currentUser }) => {
           try {
             await signOut(auth);
           } catch (signOutError) {
-            :', signOutError.message);
+            console.error('Sign out error:', signOutError.message);
           }
           authDeletionSuccess = true;
         }
