@@ -620,35 +620,33 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
                         
                         if (quizTestLessons.length === 0) return null;
                         
+                        // Create a mapping between filtered lessons and available grades
+                        const availableGradeKeys = Object.keys(grades).filter(key => key.startsWith('quiz_') || key.startsWith('test_'));
+                        const sortedGradeKeys = availableGradeKeys.sort((a, b) => {
+                          const aIndex = parseInt(a.split('_')[1]);
+                          const bIndex = parseInt(b.split('_')[1]);
+                          return aIndex - bIndex;
+                        });
+                        
+                        console.log('Grade Mapping Debug:', {
+                          quizTestLessons: quizTestLessons.map((l, i) => ({ title: l.title, type: l.type, index: i })),
+                          availableGradeKeys: sortedGradeKeys,
+                          gradesCount: availableGradeKeys.length,
+                          lessonsCount: quizTestLessons.length
+                        });
+                        
                         return quizTestLessons.map((lesson, filteredIndex) => {
-                          // Find the actual lesson index in the full unit.lessons array
-                          let actualLessonIndex = unit.lessons.findIndex(l => l.id === lesson.id);
-                          
-                          // Fallback: if findIndex returns -1 or 0 for all lessons, use the filtered index
-                          // This suggests lessons might not have unique IDs or there's a data issue
-                          if (actualLessonIndex === -1 || (filteredIndex > 0 && actualLessonIndex === 0)) {
-                            console.warn('Lesson ID not found or duplicate, using filtered index as fallback:', {
-                              lessonTitle: lesson.title,
-                              lessonId: lesson.id,
-                              filteredIndex,
-                              actualLessonIndex
-                            });
-                            actualLessonIndex = filteredIndex;
-                          }
-                          
-                          const gradeKey = `${lesson.type}_${actualLessonIndex}`;
-                          const grade = grades[gradeKey];
+                          // Use the sorted grade keys to map lessons to grades
+                          const gradeKey = sortedGradeKeys[filteredIndex];
+                          const grade = gradeKey ? grades[gradeKey] : undefined;
                           
                           console.log('Grade Lookup Debug:', {
                             lessonTitle: lesson.title,
                             lessonType: lesson.type,
-                            actualLessonIndex,
+                            filteredIndex,
                             gradeKey,
                             grade,
-                            allGradeKeys: Object.keys(grades),
-                            lessonId: lesson.id,
-                            unitLessons: unit.lessons.map((l, idx) => ({ id: l.id, title: l.title, type: l.type, index: idx })),
-                            gradesData: grades
+                            allGradeKeys: Object.keys(grades)
                           });
                           
                           if (!grade) return null;
@@ -663,7 +661,7 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
                                                    percentage >= 40 ? 'Fair' : 'Needs Improvement';
                     
                     return (
-                            <tr key={`${unit.id}-${actualLessonIndex}`}>
+                            <tr key={`${unit.id}-${filteredIndex}`}>
                               <td>{unit.title}</td>
                               <td>{lesson.title}</td>
                               <td className="score-cell">{grade.grade}</td>
@@ -693,16 +691,17 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
                     const quizTestLessons = unit.lessons?.filter(lesson => 
                       lesson.type === 'quiz' || lesson.type === 'test'
                     ) || [];
+                    const availableGradeKeys = Object.keys(grades).filter(key => key.startsWith('quiz_') || key.startsWith('test_'));
+                    const sortedGradeKeys = availableGradeKeys.sort((a, b) => {
+                      const aIndex = parseInt(a.split('_')[1]);
+                      const bIndex = parseInt(b.split('_')[1]);
+                      return aIndex - bIndex;
+                    });
+                    
                     return quizTestLessons.every((lesson, filteredIndex) => {
-                      let actualLessonIndex = unit.lessons.findIndex(l => l.id === lesson.id);
-                      
-                      // Use same fallback logic as above
-                      if (actualLessonIndex === -1 || (filteredIndex > 0 && actualLessonIndex === 0)) {
-                        actualLessonIndex = filteredIndex;
-                      }
-                      
-                      const gradeKey = `${lesson.type}_${actualLessonIndex}`;
-                      return !grades[gradeKey];
+                      const gradeKey = sortedGradeKeys[filteredIndex];
+                      const grade = gradeKey ? grades[gradeKey] : undefined;
+                      return !grade;
                     });
                   }) && (
                     <div className="no-grades">
