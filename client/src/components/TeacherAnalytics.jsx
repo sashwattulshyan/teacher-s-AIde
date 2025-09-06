@@ -212,8 +212,13 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
     // Use the smaller of stats.lessonsCompleted or actualCompletedLessons to prevent over-counting
     const completedLessons = Math.min(stats.lessonsCompleted || 0, actualCompletedLessons);
     const lessonRatio = totalLessons > 0 ? Math.min(completedLessons / totalLessons, 1) : 0;
-    engagementScore += lessonRatio * 90;
-    
+    // If all lessons are completed, give 100% engagement
+    if (lessonRatio >= 1) {
+      engagementScore = 100;
+    } else {
+      engagementScore += lessonRatio * 100;
+    }
+
     // Debug logging for engagement calculation
     console.log('Engagement Debug:', {
       statsLessonsCompleted: stats.lessonsCompleted,
@@ -221,6 +226,8 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
       completedLessons,
       totalLessons,
       lessonRatio: lessonRatio * 100,
+      totalActivities,
+      activityRatio: activityRatio * 100,
       engagementScore: engagementScore
     });
 
@@ -590,9 +597,17 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
                       </tr>
                     </thead>
                     <tbody>
-                      {units.map(unit => {
-                        const progress = studentProgress[selectedStudent.id]?.[unit.id];
+                  {units.map(unit => {
+                    const progress = studentProgress[selectedStudent.id]?.[unit.id];
                         const grades = progress?.grades || {};
+                        
+                        console.log('Grades Debug:', {
+                          unitId: unit.id,
+                          unitTitle: unit.title,
+                          progress,
+                          grades,
+                          studentId: selectedStudent.id
+                        });
                         
                         // Get quiz and test lessons from this unit
                         const quizTestLessons = unit.lessons?.filter(lesson => 
@@ -615,8 +630,8 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
                           const teacherPerformance = percentage >= 80 ? 'Excellent' : 
                                                    percentage >= 60 ? 'Good' : 
                                                    percentage >= 40 ? 'Fair' : 'Needs Improvement';
-                          
-                          return (
+                    
+                    return (
                             <tr key={`${unit.id}-${lessonIndex}`}>
                               <td>{unit.title}</td>
                               <td>{lesson.title}</td>
@@ -654,7 +669,7 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
                   }) && (
                     <div className="no-grades">
                       <p>No teacher grades available yet. Grades will appear here once the teacher grades submitted work in the grading section.</p>
-                    </div>
+                            </div>
                   )}
                 </div>
               </div>
@@ -683,15 +698,6 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
                               <div 
                                 className="breakdown-fill"
                                 style={{ width: `${engagement.lessonRatio}%` }}
-                              ></div>
-                            </div>
-                          </div>
-                          <div className="breakdown-item">
-                            <span>Quiz Performance: {engagement.quizPerformanceRatio}%</span>
-                            <div className="breakdown-bar">
-                              <div 
-                                className="breakdown-fill"
-                                style={{ width: `${engagement.quizPerformanceRatio}%` }}
                               ></div>
                             </div>
                           </div>
