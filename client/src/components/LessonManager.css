@@ -748,6 +748,17 @@
   font-size: 0.75rem;
 }
 
+/* Student view button styling */
+.student-view-button-container {
+  margin-top: 12px;
+  text-align: left;
+}
+
+.question-count {
+  text-align: left;
+  margin-bottom: 8px;
+}
+
 .btn-danger {
   background: rgba(239, 68, 68, 0.1);
   color: var(--error);

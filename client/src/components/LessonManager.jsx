@@ -1416,7 +1416,7 @@ const LessonManager = ({ course, classroom, onBack }) => {
             )}
             {(previewLesson.type === 'quiz' || previewLesson.type === 'test') && (
               <div>
-                <p><strong>{previewLesson.questions?.length || 0} questions</strong></p>
+                <p className="question-count"><strong>{previewLesson.questions?.length || 0} questions</strong></p>
                 {previewLesson.questions?.slice(0, 2).map((q, index) => (
                   <div key={index} className="question-preview">
                     <MarkdownRenderer 
@@ -1425,9 +1425,9 @@ const LessonManager = ({ course, classroom, onBack }) => {
                     />
                   </div>
                 ))}
-                <div style={{ marginTop: '12px' }}>
+                <div className="student-view-button-container">
                   <button 
-                    className="btn-secondary small"
+                    className="btn-primary small"
                     onClick={() => handleStudentView(previewLesson)}
                     style={{ fontSize: '0.875rem', padding: '8px 16px' }}
                   >
@@ -1570,26 +1570,30 @@ const LessonManager = ({ course, classroom, onBack }) => {
                 )}
                 {lesson.type === 'quiz' && (
                   <div>
-                    <p><strong>{lesson.questions?.length || 0} questions</strong></p>
-                    <button 
-                      className="btn-secondary small"
-                      onClick={() => handleStudentView(lesson)}
-                      style={{ fontSize: '0.875rem', padding: '6px 12px', marginTop: '8px' }}
-                    >
-                      👁️ Student View
-                    </button>
+                    <p className="question-count"><strong>{lesson.questions?.length || 0} questions</strong></p>
+                    <div className="student-view-button-container">
+                      <button 
+                        className="btn-primary small"
+                        onClick={() => handleStudentView(lesson)}
+                        style={{ fontSize: '0.875rem', padding: '6px 12px' }}
+                      >
+                        👁️ Student View
+                      </button>
+                    </div>
                   </div>
                 )}
                 {lesson.type === 'test' && (
                   <div>
-                    <p><strong>{lesson.questions?.length || 0} questions</strong></p>
-                    <button 
-                      className="btn-secondary small"
-                      onClick={() => handleStudentView(lesson)}
-                      style={{ fontSize: '0.875rem', padding: '6px 12px', marginTop: '8px' }}
-                    >
-                      👁️ Student View
-                    </button>
+                    <p className="question-count"><strong>{lesson.questions?.length || 0} questions</strong></p>
+                    <div className="student-view-button-container">
+                      <button 
+                        className="btn-primary small"
+                        onClick={() => handleStudentView(lesson)}
+                        style={{ fontSize: '0.875rem', padding: '6px 12px' }}
+                      >
+                        👁️ Student View
+                      </button>
+                    </div>
                   </div>
                 )}
                 {lesson.type === 'assignment' && (
