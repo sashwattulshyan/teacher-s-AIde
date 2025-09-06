@@ -335,7 +335,16 @@ class GamificationSystem {
         totalAssignments: progress.totalAssignments || 0,
         totalQuizzes: progress.totalQuizzes || 0,
         progressPercentage: totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0,
-        averageScore: progress.averageScore || 0
+        averageScore: progress.averageScore || 0,
+        quizScores: progress.quizScores || {},
+        testScores: progress.testScores || {},
+        quizAnswers: progress.quizAnswers || {},
+        quizSubmitted: progress.quizSubmitted || {},
+        assignmentSubmissions: progress.assignmentSubmissions || {},
+        videoSubmissions: progress.videoSubmissions || {},
+        discussionResponses: progress.discussionResponses || {},
+        projectSubmissions: progress.projectSubmissions || {},
+        workshopParticipation: progress.workshopParticipation || {}
       };
     } catch (error) {
       console.error('Error getting user progress:', error);
