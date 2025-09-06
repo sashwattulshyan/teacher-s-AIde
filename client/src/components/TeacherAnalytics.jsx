@@ -610,6 +610,9 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
                           hasGrades: Object.keys(grades || {}).length > 0
                         });
                         
+                        // Log just the grade keys for easier debugging
+                        console.log('Available Grade Keys:', Object.keys(grades || {}));
+                        
                         // Get quiz and test lessons from this unit
                         const quizTestLessons = unit.lessons?.filter(lesson => 
                           lesson.type === 'quiz' || lesson.type === 'test'
