@@ -54,6 +54,7 @@ const LessonViewer = ({ course, onBack, onLessonComplete, initialLessonIndex = 0
       completedLessons,
       quizAnswers,
       quizSubmitted,
+      quizzesCompleted: Object.keys(quizSubmitted).length,
       discussionResponses,
       projectSubmissions,
       workshopParticipation,
@@ -151,9 +152,14 @@ const LessonViewer = ({ course, onBack, onLessonComplete, initialLessonIndex = 0
       scoreField
     });
     
+    // Update quizzes completed counter
+    const currentQuizSubmitted = { ...quizSubmitted, [currentLessonIndex]: true };
+    const quizzesCompletedCount = Object.keys(currentQuizSubmitted).length;
+    
     await saveProgress({ 
-      quizSubmitted: { ...quizSubmitted, [currentLessonIndex]: true },
-      [scoreField]: currentScores
+      quizSubmitted: currentQuizSubmitted,
+      [scoreField]: currentScores,
+      quizzesCompleted: quizzesCompletedCount
     });
     markLessonComplete();
   };

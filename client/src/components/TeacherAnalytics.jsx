@@ -233,13 +233,13 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
       
       Object.values(unitProgress).forEach(progress => {
         console.log('Progress data for quiz scores:', progress);
-        if (progress?.quizScores) {
+        if (progress?.quizScores && Object.keys(progress.quizScores).length > 0) {
           console.log('Found quizScores:', progress.quizScores);
           Object.values(progress.quizScores).forEach(score => {
             quizScores.push(score);
           });
         }
-        if (progress?.testScores) {
+        if (progress?.testScores && Object.keys(progress.testScores).length > 0) {
           console.log('Found testScores:', progress.testScores);
           Object.values(progress.testScores).forEach(score => {
             testScores.push(score);
