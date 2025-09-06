@@ -226,8 +226,6 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
       completedLessons,
       totalLessons,
       lessonRatio: lessonRatio * 100,
-      totalActivities,
-      activityRatio: activityRatio * 100,
       engagementScore: engagementScore
     });
 
