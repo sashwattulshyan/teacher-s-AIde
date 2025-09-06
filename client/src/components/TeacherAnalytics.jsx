@@ -629,7 +629,9 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
                             actualLessonIndex,
                             gradeKey,
                             grade,
-                            allGradeKeys: Object.keys(grades)
+                            allGradeKeys: Object.keys(grades),
+                            lessonId: lesson.id,
+                            unitLessons: unit.lessons.map((l, idx) => ({ id: l.id, title: l.title, type: l.type, index: idx }))
                           });
                           
                           if (!grade) return null;
