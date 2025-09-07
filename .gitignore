@@ -83,6 +83,10 @@ jspm_packages/
 firebase-debug.log
 firebase-debug.*.log
 
+# Service account keys (keep secure!)
+*service-account*.json
+*firebase-adminsdk*.json
+
 # OS generated files
 .DS_Store
 .DS_Store?
