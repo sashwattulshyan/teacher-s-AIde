@@ -50,8 +50,8 @@ app.use(helmet());
 app.use(cors({
   origin: [
     process.env.CLIENT_URL || 'http://localhost:5173',
-    'https://eduspark-app-c1c19.web.app',
-    'https://eduspark-app-c1c19.firebaseapp.com'
+    'https://teachers-aide-app.web.app',
+    'https://teachers-aide-app.firebaseapp.com'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
