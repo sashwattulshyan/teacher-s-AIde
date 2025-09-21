@@ -7,6 +7,7 @@ import { auth, db } from "../firebase";
 import LessonViewer from "./LessonViewer";
 import API_CONFIG from "../config/api";
 import "./StudentDashboard.css";
+import BugReportModal from './BugReportModal';
 
 async function getAuthToken() {
   if (!auth.currentUser) return null;
@@ -29,7 +30,8 @@ const StudentDashboard = () => {
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [error, setError] = useState('');
   const [user] = useAuthState(auth);
-
+  const [showBugReport, setShowBugReport] = useState(false);
+  
   useEffect(() => {
     const fetchClassrooms = async () => {
       if (!user) return;
@@ -562,31 +564,40 @@ const StudentDashboard = () => {
     <div className="student-dashboard">
       {/* Header */}
       <div className="dashboard-header">
-        <div>
-          {selectedClassroom && (
-            <button className="btn-back" onClick={handleBackToClassrooms}>
-              ← Back to Classrooms
-            </button>
-          )}
-          <h2>{selectedClassroom ? selectedClassroom.name : 'Student Dashboard'}</h2>
-      </div>
-        {selectedClassroom && (
-          <div className="view-tabs">
-        <button 
-              className={`tab-button ${view === 'overview' ? 'active' : ''}`}
-              onClick={() => setView('overview')}
-        >
-              📊 Overview
-        </button>
-        <button 
-              className={`tab-button ${view === 'unit-detail' ? 'active' : ''}`}
-              onClick={() => setView('unit-detail')}
-        >
-              📚 Units
-        </button>
-          </div>
-        )}
-      </div>
+  <div>
+    {selectedClassroom && (
+      <button className="btn-back" onClick={handleBackToClassrooms}>
+        ← Back to Classrooms
+      </button>
+    )}
+    <h2>{selectedClassroom ? selectedClassroom.name : 'Student Dashboard'}</h2>
+  </div>
+  <div className="header-actions">
+    <button 
+      className="bug-report-btn"
+      onClick={() => setShowBugReport(true)}
+      title="Report a bug or issue"
+    >
+      �� Report Bug
+    </button>
+  </div>
+  {selectedClassroom && (
+    <div className="view-tabs">
+      <button 
+        className={`tab-button ${view === 'overview' ? 'active' : ''}`}
+        onClick={() => setView('overview')}
+      >
+        �� Overview
+      </button>
+      <button 
+        className={`tab-button ${view === 'unit-detail' ? 'active' : ''}`}
+        onClick={() => setView('unit-detail')}
+      >
+        📚 Units
+      </button>
+    </div>
+  )}
+</div>
 
       {/* Overview Tab */}
       {view === 'overview' && (
@@ -814,6 +825,14 @@ const StudentDashboard = () => {
           )}
         </div>
       )}
+      {/* Bug Report Modal */}
+<BugReportModal
+  isOpen={showBugReport}
+  onClose={() => setShowBugReport(false)}
+  userRole="student"
+  userName={user?.displayName || user?.email}
+  userEmail={user?.email}
+/>
     </div>
   );
 };
