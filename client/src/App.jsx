@@ -11,6 +11,8 @@ import LandingPage from './components/LandingPage';
 import AuthPage from './components/AuthPage';
 import SettingsDropdown from './components/SettingsDropdown';
 import './App.css';
+// Global console error capture
+window.consoleErrors = [];
 
 // Protected Route Component
 const ProtectedRoute = ({ children, requiredRole }) => {
@@ -283,6 +285,58 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Console error capture
+useEffect(() => {
+  const originalError = console.error;
+  const originalWarn = console.warn;
+  
+  console.error = (...args) => {
+    window.consoleErrors.push({
+      type: 'error',
+      message: args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' '),
+      timestamp: new Date().toISOString()
+    });
+    originalError.apply(console, args);
+  };
+  
+  console.warn = (...args) => {
+    window.consoleErrors.push({
+      type: 'warning',
+      message: args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' '),
+      timestamp: new Date().toISOString()
+    });
+    originalWarn.apply(console, args);
+  };
+
+  const handleError = (event) => {
+    window.consoleErrors.push({
+      type: 'unhandled',
+      message: event.error?.message || 'Unknown error',
+      stack: event.error?.stack || '',
+      timestamp: new Date().toISOString()
+    });
+  };
+
+  const handleUnhandledRejection = (event) => {
+    window.consoleErrors.push({
+      type: 'promise',
+      message: event.reason?.message || String(event.reason),
+      stack: event.reason?.stack || '',
+      timestamp: new Date().toISOString()
+    });
+  };
+
+  window.addEventListener('error', handleError);
+  window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+  return () => {
+    console.error = originalError;
+    console.warn = originalWarn;
+    window.removeEventListener('error', handleError);
+    window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+  };
+}, []);
+  
   useEffect(() => {
     try {
               const unsubscribe = onAuthStateChanged(auth, async (user) => {
