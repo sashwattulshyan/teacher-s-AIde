@@ -14,8 +14,8 @@ const createTransporter = () => {
       pass: process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD
     }
   };
-
-  return nodemailer.createTransporter(emailConfig);
+  
+  return nodemailer.createTransport(emailConfig);
 };
 
 // Format console errors for email
