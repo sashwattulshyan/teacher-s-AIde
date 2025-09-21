@@ -8,6 +8,7 @@ import UnitManager from './CourseManager';
 import LessonManager from './LessonManager';
 import TeacherAnalytics from './TeacherAnalytics';
 import './TeacherDashboard.css';
+import BugReportModal from './BugReportModal';
 
 const TeacherDashboard = () => {
   const { classroomId, unitId } = useParams();
@@ -19,7 +20,8 @@ const TeacherDashboard = () => {
   const [selectedUnit, setSelectedUnit] = useState(null);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [loading, setLoading] = useState(true);
-
+  const [showBugReport, setShowBugReport] = useState(false);
+  
   // Fetch teacher's classrooms in real-time
   useEffect(() => {
     if (!auth.currentUser) return;
@@ -146,42 +148,49 @@ const TeacherDashboard = () => {
   const currentView = getCurrentView();
 
   return (
-    <div className="teacher-dashboard">
-      {/* Header with navigation */}
-      <div className="dashboard-header">
-        <h1>Teacher Dashboard</h1>
-        <div className="breadcrumb">
-          <span 
-            className={currentView === 'classrooms' ? 'active' : 'clickable'}
-            onClick={handleBackToClassrooms}
-          >
-            Classrooms
-          </span>
-          {selectedClassroom && (
-            <>
-              <span className="separator">›</span>
-              <span 
-                className={currentView === 'units' ? 'active' : 'clickable'}
-                onClick={handleBackToUnits}
-              >
-                {selectedClassroom.name}
-              </span>
-            </>
-          )}
-          {selectedUnit && !showAnalytics && (
-            <>
-              <span className="separator">›</span>
-              <span className="active">{selectedUnit.title}</span>
-            </>
-          )}
-          {showAnalytics && (
-            <>
-              <span className="separator">›</span>
-              <span className="active">Analytics</span>
-            </>
-          )}
-        </div>
-      </div>
+   <div className="dashboard-header">
+  <h1>Teacher Dashboard</h1>
+  <div className="header-actions">
+    <button 
+      className="bug-report-btn"
+      onClick={() => setShowBugReport(true)}
+      title="Report a bug or issue"
+    >
+      🐛 Report Bug
+    </button>
+  </div>
+  <div className="breadcrumb">
+    <span 
+      className={currentView === 'classrooms' ? 'active' : 'clickable'}
+      onClick={handleBackToClassrooms}
+    >
+      Classrooms
+    </span>
+    {selectedClassroom && (
+      <>
+        <span className="separator">›</span>
+        <span 
+          className={currentView === 'units' ? 'active' : 'clickable'}
+          onClick={handleBackToUnits}
+        >
+          {selectedClassroom.name}
+        </span>
+      </>
+    )}
+    {selectedUnit && !showAnalytics && (
+      <>
+        <span className="separator">›</span>
+        <span className="active">{selectedUnit.title}</span>
+      </>
+    )}
+    {showAnalytics && (
+      <>
+        <span className="separator">›</span>
+        <span className="active">Analytics</span>
+      </>
+    )}
+  </div>
+</div>
 
       {/* Main content area */}
       <div className="dashboard-content">
@@ -231,6 +240,14 @@ const TeacherDashboard = () => {
           </div>
         )}
       </div>
+        {/* Bug Report Modal */}
+  <BugReportModal
+  isOpen={showBugReport}
+  onClose={() => setShowBugReport(false)}
+  userRole="teacher"
+  userName={auth.currentUser?.displayName || auth.currentUser?.email}
+  userEmail={auth.currentUser?.email}
+    />
     </div>
   );
 };
