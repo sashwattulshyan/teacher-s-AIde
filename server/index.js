@@ -190,6 +190,8 @@ app.use('/api/video', require('./routes/video'));
 console.log('Video routes loaded');
 app.use('/api/grading', require('./routes/grading'));
 console.log('Grading routes loaded');
+app.use('/api/bug-report', require('./routes/bug-report'));
+console.log('Bug report routes loaded');
 
 // 404 handler
 app.use((req, res) => {
