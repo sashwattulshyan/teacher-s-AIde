@@ -60,7 +60,13 @@ const JoinClassroom = () => {
       }, 1500); // Wait 1.5 seconds to show the success message
     } catch (error) {
       console.error("Error joining classroom:", error);
-      setMessage("An error occurred. Please try again.");
+      if (error.code === 'permission-denied') {
+        setMessage("Permission denied. Please make sure you're logged in and try again.");
+      } else if (error.code === 'unavailable') {
+        setMessage("Service temporarily unavailable. Please try again in a moment.");
+      } else {
+        setMessage("An error occurred. Please try again.");
+      }
       setMessageType('error');
     }
   };

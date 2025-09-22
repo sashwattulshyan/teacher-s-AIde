@@ -124,7 +124,16 @@ router.post(
       }
       return true;
     }).withMessage('Number of questions must be between 1 and 100'),
-    body('questionTypes').optional().isString().isLength({ max: 500 }).withMessage('Question types must be a string with max 500 characters'),
+    body('questionTypes').custom((value, { req }) => {
+      const lessonType = req.body.lessonType;
+      if ((lessonType === 'quiz' || lessonType === 'test') && (!value || value.trim() === '')) {
+        throw new Error('Question types are required for quiz and test generation');
+      }
+      if (value && value.length > 500) {
+        throw new Error('Question types must be 500 characters or less');
+      }
+      return true;
+    }).withMessage('Question types are required for quiz and test generation'),
     body('save').optional().isString().custom((value) => {
       if (value === 'true' || value === 'false' || value === '') {
         return true;
@@ -381,7 +390,7 @@ router.post(
       }
       return true;
     }).withMessage('Number of questions must be between 1 and 100'),
-    body('questionTypes').optional().isString().isLength({ max: 500 }).withMessage('Question types must be a string with max 500 characters'),
+    body('questionTypes').isString().notEmpty().isLength({ max: 500 }).withMessage('Question types are required and must be 500 characters or less'),
     body('sourceText').optional().isString().isLength({ max: 10000 }).withMessage('Source text must be a string with max 10000 characters'),
     body('save').optional().isString().custom((value) => {
       if (value === 'true' || value === 'false' || value === '' || !value) {

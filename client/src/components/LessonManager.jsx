@@ -411,6 +411,13 @@ const LessonManager = ({ course, classroom, onBack }) => {
     setAiGenerating(true);
     setAiError(''); // Clear any previous errors
     
+    // Validate question types for quiz and test
+    if ((aiLessonType === 'quiz' || aiLessonType === 'test') && (!aiQuestionTypesText || aiQuestionTypesText.trim() === '')) {
+      setAiError('Question types are required for quiz and test generation');
+      setAiGenerating(false);
+      return;
+    }
+    
     // Show progress message for long-running requests
     const progressInterval = setInterval(() => {
       setAiError('AI is generating your lesson... This may take up to 5 minutes for complex content.');
@@ -1214,11 +1221,11 @@ const LessonManager = ({ course, classroom, onBack }) => {
                 <textarea value={aiObjectivesText} onChange={(e) => setAiObjectivesText(e.target.value)} placeholder="One per line" rows="3" />
               </div>
               <div className="form-group">
-                <label>Source Text or Lesson Topic *</label>
+                <label>Add detailed instructions for AI here *</label>
                 <textarea 
                   value={aiSourceText} 
                   onChange={(e) => setAiSourceText(e.target.value)} 
-                  placeholder="Paste any relevant material here or add any guidelines for generation (ie. focus on chapter one of the file, introduction to grammar concepts, etc.)" 
+                  placeholder="Please generate a comprehensive lecture on limits in math covering the basics of what a limit is and how we can determine a limit graphically, algebraically, and using intuition" 
                   rows="6" 
                   required
                 />
@@ -1321,8 +1328,14 @@ const LessonManager = ({ course, classroom, onBack }) => {
                     <input type="number" min="1" max="100" value={aiNumQuestions} onChange={(e) => setAiNumQuestions(parseInt(e.target.value || '1'))} />
                   </div>
                   <div className="form-group" style={{ flex: 2 }}>
-                    <label>Question Types (comma-separated)</label>
-                    <input type="text" value={aiQuestionTypesText} onChange={(e) => setAiQuestionTypesText(e.target.value)} placeholder="multiple choice, true/false, vocabulary" />
+                    <label>Question Types (comma-separated) *</label>
+                    <input 
+                      type="text" 
+                      value={aiQuestionTypesText} 
+                      onChange={(e) => setAiQuestionTypesText(e.target.value)} 
+                      placeholder="multiple choice, true/false, vocabulary" 
+                      required
+                    />
                   </div>
                 </div>
               )}
@@ -1352,7 +1365,7 @@ const LessonManager = ({ course, classroom, onBack }) => {
                   type="submit" 
                   className="btn-primary" 
                   disabled={aiGenerating || !aiSourceText.trim()}
-                  title={!aiSourceText.trim() ? 'Please provide source text or lesson topic to generate content' : ''}
+                  title={!aiSourceText.trim() ? 'Please provide detailed instructions for AI to generate content' : ''}
                 >
                   {aiGenerating ? 'Generating...' : 'Generate'}
                 </button>

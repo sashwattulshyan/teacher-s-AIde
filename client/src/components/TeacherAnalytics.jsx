@@ -579,9 +579,9 @@ const TeacherAnalytics = ({ classroom, onBack }) => {
                 </div>
               </div>
 
-              {/* Teacher Grades */}
+              {/* Test Grades */}
               <div className="assessment-scores">
-                <h5>Teacher Grades</h5>
+                <h5>Test Grades</h5>
                 <div className="grades-table-container">
                   <table className="grades-table">
                     <thead>

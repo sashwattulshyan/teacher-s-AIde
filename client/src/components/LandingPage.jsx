@@ -20,7 +20,7 @@ const LandingPage = () => {
         <div className="hero-content">
           <h1 className="hero-title">
             Welcome to
-            <span className="highlight"> Teachers <span className="ai-highlight">AI</span>de</span>
+            <span className="highlight"> Teacher's <span className="ai-highlight">AI</span>de</span>
           </h1>
           <p className="hero-subtitle">
             Your AI-powered teaching assistant that helps you create engaging courses, track student progress, 
@@ -115,7 +115,7 @@ const LandingPage = () => {
       <section className="cta-section">
         <div className="cta-content">
           <h2>Ready to Transform Your Teaching?</h2>
-          <p>Join thousands of educators who are already using Teachers AIde to create better learning experiences on desktop.</p>
+          <p>Join thousands of educators who are already using Teacher's AIde to create better learning experiences on desktop.</p>
           <div className="cta-buttons">
             <button className="btn-primary large" onClick={handleGetStarted}>
               Get Started

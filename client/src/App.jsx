@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { auth, db } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import TeacherDashboard from './components/TeacherDashboard';
 import JoinClassroom from './components/JoinClassroom';
 import StudentDashboard from "./components/StudentDashboard";
@@ -11,6 +11,9 @@ import LandingPage from './components/LandingPage';
 import AuthPage from './components/AuthPage';
 import SettingsDropdown from './components/SettingsDropdown';
 import './App.css';
+
+// Global console error capture
+window.consoleErrors = [];
 
 // Protected Route Component
 const ProtectedRoute = ({ children, requiredRole }) => {
@@ -283,34 +286,99 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Console error capture
+  useEffect(() => {
+    const originalError = console.error;
+    const originalWarn = console.warn;
+    
+    console.error = (...args) => {
+      window.consoleErrors.push({
+        type: 'error',
+        message: args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' '),
+        timestamp: new Date().toISOString()
+      });
+      originalError.apply(console, args);
+    };
+    
+    console.warn = (...args) => {
+      window.consoleErrors.push({
+        type: 'warning',
+        message: args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' '),
+        timestamp: new Date().toISOString()
+      });
+      originalWarn.apply(console, args);
+    };
+
+    const handleError = (event) => {
+      window.consoleErrors.push({
+        type: 'unhandled',
+        message: event.error?.message || 'Unknown error',
+        stack: event.error?.stack || '',
+        timestamp: new Date().toISOString()
+      });
+    };
+
+    const handleUnhandledRejection = (event) => {
+      window.consoleErrors.push({
+        type: 'promise',
+        message: event.reason?.message || String(event.reason),
+        stack: event.reason?.stack || '',
+        timestamp: new Date().toISOString()
+      });
+    };
+
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+    return () => {
+      console.error = originalError;
+      console.warn = originalWarn;
+      window.removeEventListener('error', handleError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, []);
+
   useEffect(() => {
     try {
-              const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      
-          try {
-            if (user) {
-              setCurrentUser(user);
-              const userDocRef = doc(db, 'users', user.uid);
-              const userDoc = await getDoc(userDocRef);
-              if (userDoc.exists()) {
-                const role = userDoc.data().role;
-                setUserRole(role);
-        
-              } else {
-                // User exists in Firebase Auth but not in Firestore (account was deleted)
-                await signOut(auth);
-                setCurrentUser(null);
-                setUserRole('');
-                return; // Don't set loading to false yet, let the auth state change handle it
-              }
+      const unsubscribe = onAuthStateChanged(auth, async (user) => {
+        try {
+          if (user) {
+            setCurrentUser(user);
+            const userDocRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userDocRef);
+            if (userDoc.exists()) {
+              const role = userDoc.data().role;
+              setUserRole(role);
             } else {
-              setCurrentUser(null);
-              setUserRole('');
+              // User exists in Firebase Auth but not in Firestore
+              // This could be a user from the old project - create a new user document
+              console.log('User not found in Firestore, creating new user document...');
+              
+              // Create a basic user document
+              await setDoc(doc(db, 'users', user.uid), {
+                email: user.email,
+                firstName: user.displayName?.split(' ')[0] || 'User',
+                lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
+                displayName: user.displayName || user.email,
+                role: 'student', // Default role
+                createdAt: new Date().toISOString()
+              });
+              
+              setUserRole('student');
             }
-          } catch (error) {
-            console.error("Error in onAuthStateChanged:", error);
-            setError(error.message);
-          } finally {
+          } else {
+            setCurrentUser(null);
+            setUserRole('');
+          }
+        } catch (error) {
+          console.error("Error in onAuthStateChanged:", error);
+          // If it's an auth error, sign out the user to clear invalid tokens
+          if (error.code === 'auth/user-token-expired' || error.code === 'auth/invalid-credential') {
+            console.log('Auth token expired or invalid, signing out user...');
+            await signOut(auth);
+          }
+          setError(error.message);
+        } finally {
             setLoading(false);
           }
         });

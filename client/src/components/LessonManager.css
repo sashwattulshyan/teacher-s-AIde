@@ -974,3 +974,18 @@
   white-space: nowrap;
   padding: 12px 16px;
 }
+
+/* Required field styling */
+.form-group label:has-text("*") {
+  color: var(--accent-primary);
+}
+
+.form-group input[required] {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 1px var(--accent-primary);
+}
+
+.form-group input[required]:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(var(--accent-primary-rgb), 0.2);
+}

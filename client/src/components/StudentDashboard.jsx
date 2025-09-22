@@ -5,6 +5,7 @@ import { collection, query, where, getDocs, doc, getDoc, updateDoc } from "fireb
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "../firebase";
 import LessonViewer from "./LessonViewer";
+import BugReportModal from "./BugReportModal";
 import API_CONFIG from "../config/api";
 import "./StudentDashboard.css";
 
@@ -28,6 +29,7 @@ const StudentDashboard = () => {
   const [view, setView] = useState('overview'); // overview, unit-detail, lesson-detail
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [error, setError] = useState('');
+  const [showBugReport, setShowBugReport] = useState(false);
   const [user] = useAuthState(auth);
 
   useEffect(() => {
@@ -569,7 +571,16 @@ const StudentDashboard = () => {
             </button>
           )}
           <h2>{selectedClassroom ? selectedClassroom.name : 'Student Dashboard'}</h2>
-      </div>
+        </div>
+        <div className="header-actions">
+          <button 
+            className="bug-report-btn"
+            onClick={() => setShowBugReport(true)}
+            title="Report a bug or issue"
+          >
+            🐛 Report Bug
+          </button>
+        </div>
         {selectedClassroom && (
           <div className="view-tabs">
         <button 
@@ -814,6 +825,15 @@ const StudentDashboard = () => {
           )}
         </div>
       )}
+
+      {/* Bug Report Modal */}
+      <BugReportModal
+        isOpen={showBugReport}
+        onClose={() => setShowBugReport(false)}
+        userRole="student"
+        userName={user?.displayName || user?.email}
+        userEmail={user?.email}
+      />
     </div>
   );
 };

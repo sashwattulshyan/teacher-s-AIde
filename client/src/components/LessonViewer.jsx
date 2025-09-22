@@ -114,6 +114,13 @@ const LessonViewer = ({ course, onBack, onLessonComplete, initialLessonIndex = 0
   };
 
   const submitQuiz = async () => {
+    // Show confirmation dialog
+    const confirmed = window.confirm(
+      `Are you sure you want to submit this ${currentLesson.type}? Once submitted, you cannot make changes.`
+    );
+    
+    if (!confirmed) return;
+    
     // Calculate quiz score
     const questions = currentLesson?.questions || [];
     let correct = 0;
@@ -162,6 +169,9 @@ const LessonViewer = ({ course, onBack, onLessonComplete, initialLessonIndex = 0
       quizzesCompleted: quizzesCompletedCount
     });
     markLessonComplete();
+    
+    // Show success message with score
+    alert(`${currentLesson.type.charAt(0).toUpperCase() + currentLesson.type.slice(1)} submitted successfully! Your score: ${score}%`);
   };
 
   const handleDiscussionResponse = (response) => {
@@ -172,8 +182,18 @@ const LessonViewer = ({ course, onBack, onLessonComplete, initialLessonIndex = 0
   };
 
   const submitDiscussion = async () => {
+    // Show confirmation dialog
+    const confirmed = window.confirm(
+      'Are you sure you want to submit your discussion response? Once submitted, you cannot make changes.'
+    );
+    
+    if (!confirmed) return;
+    
     await saveProgress({ discussionResponses });
     markLessonComplete();
+    
+    // Show success message
+    alert('Discussion response submitted successfully!');
   };
 
   const handleAssignmentSubmission = (value) => {
@@ -186,8 +206,18 @@ const LessonViewer = ({ course, onBack, onLessonComplete, initialLessonIndex = 0
   const submitAssignment = async () => {
     if (!assignmentSubmissions[currentLessonIndex]?.trim()) return;
     
+    // Show confirmation dialog
+    const confirmed = window.confirm(
+      'Are you sure you want to submit this assignment? Once submitted, you cannot make changes.'
+    );
+    
+    if (!confirmed) return;
+    
     await saveProgress({ assignmentSubmissions });
     markLessonComplete();
+    
+    // Show success message
+    alert('Assignment submitted successfully!');
   };
 
   const handleVideoSubmission = (value) => {
@@ -200,8 +230,18 @@ const LessonViewer = ({ course, onBack, onLessonComplete, initialLessonIndex = 0
   const submitVideo = async () => {
     if (!videoSubmissions[currentLessonIndex]?.trim()) return;
     
+    // Show confirmation dialog
+    const confirmed = window.confirm(
+      'Are you sure you want to submit your video response? Once submitted, you cannot make changes.'
+    );
+    
+    if (!confirmed) return;
+    
     await saveProgress({ videoSubmissions });
     markLessonComplete();
+    
+    // Show success message
+    alert('Video response submitted successfully!');
   };
 
   const handleProjectSubmission = (submission) => {
@@ -212,8 +252,18 @@ const LessonViewer = ({ course, onBack, onLessonComplete, initialLessonIndex = 0
   };
 
   const submitProject = async () => {
+    // Show confirmation dialog
+    const confirmed = window.confirm(
+      'Are you sure you want to submit your project? Once submitted, you cannot make changes.'
+    );
+    
+    if (!confirmed) return;
+    
     await saveProgress({ projectSubmissions });
     markLessonComplete();
+    
+    // Show success message
+    alert('Project submitted successfully!');
   };
 
   const handleWorkshopParticipation = (participation) => {
@@ -224,8 +274,18 @@ const LessonViewer = ({ course, onBack, onLessonComplete, initialLessonIndex = 0
   };
 
   const submitWorkshop = async () => {
+    // Show confirmation dialog
+    const confirmed = window.confirm(
+      'Are you sure you want to submit your workshop participation? Once submitted, you cannot make changes.'
+    );
+    
+    if (!confirmed) return;
+    
     await saveProgress({ workshopParticipation });
     markLessonComplete();
+    
+    // Show success message
+    alert('Workshop participation submitted successfully!');
   };
 
   // Helper function to convert YouTube URLs to embed URLs
