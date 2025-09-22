@@ -288,49 +288,62 @@ function App() {
 
   // Console error capture
   useEffect(() => {
+    console.log('🐛 App: Setting up global console error capture');
+    
     const originalError = console.error;
     const originalWarn = console.warn;
     
     console.error = (...args) => {
-      window.consoleErrors.push({
+      const errorData = {
         type: 'error',
         message: args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' '),
         timestamp: new Date().toISOString()
-      });
+      };
+      console.log('🐛 App: Global console error captured', errorData);
+      window.consoleErrors.push(errorData);
       originalError.apply(console, args);
     };
     
     console.warn = (...args) => {
-      window.consoleErrors.push({
+      const warningData = {
         type: 'warning',
         message: args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' '),
         timestamp: new Date().toISOString()
-      });
+      };
+      console.log('🐛 App: Global console warning captured', warningData);
+      window.consoleErrors.push(warningData);
       originalWarn.apply(console, args);
     };
 
     const handleError = (event) => {
-      window.consoleErrors.push({
+      const errorData = {
         type: 'unhandled',
         message: event.error?.message || 'Unknown error',
         stack: event.error?.stack || '',
         timestamp: new Date().toISOString()
-      });
+      };
+      console.log('🐛 App: Global unhandled error captured', errorData);
+      window.consoleErrors.push(errorData);
     };
 
     const handleUnhandledRejection = (event) => {
-      window.consoleErrors.push({
+      const rejectionData = {
         type: 'promise',
         message: event.reason?.message || String(event.reason),
         stack: event.reason?.stack || '',
         timestamp: new Date().toISOString()
-      });
+      };
+      console.log('🐛 App: Global unhandled promise rejection captured', rejectionData);
+      window.consoleErrors.push(rejectionData);
     };
 
     window.addEventListener('error', handleError);
     window.addEventListener('unhandledrejection', handleUnhandledRejection);
 
+    console.log('🐛 App: Global error listeners set up successfully');
+
     return () => {
+      console.log('🐛 App: Cleaning up global error listeners');
       console.error = originalError;
       console.warn = originalWarn;
       window.removeEventListener('error', handleError);

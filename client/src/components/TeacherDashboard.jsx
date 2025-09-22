@@ -154,7 +154,15 @@ const TeacherDashboard = () => {
         <div className="header-actions">
           <button 
             className="bug-report-btn"
-            onClick={() => setShowBugReport(true)}
+            onClick={() => {
+              console.log('🐛 TeacherDashboard: Bug report button clicked', {
+                user: auth.currentUser?.email,
+                userRole: 'teacher',
+                timestamp: new Date().toISOString(),
+                currentPath: window.location.pathname
+              });
+              setShowBugReport(true);
+            }}
             title="Report a bug or issue"
           >
             🐛 Report Bug
@@ -245,7 +253,10 @@ const TeacherDashboard = () => {
       {/* Bug Report Modal */}
       <BugReportModal
         isOpen={showBugReport}
-        onClose={() => setShowBugReport(false)}
+        onClose={() => {
+          console.log('🐛 TeacherDashboard: Bug report modal closed');
+          setShowBugReport(false);
+        }}
         userRole="teacher"
         userName={auth.currentUser?.displayName || auth.currentUser?.email}
         userEmail={auth.currentUser?.email}

@@ -2,6 +2,14 @@ import React, { useState, useEffect } from 'react';
 import './BugReportModal.css';
 
 const BugReportModal = ({ isOpen, onClose, userRole, userName, userEmail }) => {
+  console.log('🐛 BugReportModal: Component initialized', {
+    isOpen,
+    userRole,
+    userName,
+    userEmail,
+    timestamp: new Date().toISOString()
+  });
+
   const [formData, setFormData] = useState({
     description: '',
     steps: '',
@@ -18,7 +26,11 @@ const BugReportModal = ({ isOpen, onClose, userRole, userName, userEmail }) => {
 
   // Capture console errors
   useEffect(() => {
+    console.log('🐛 BugReportModal: useEffect for console error capture triggered', { isOpen });
+    
     if (isOpen) {
+      console.log('🐛 BugReportModal: Setting up console error capture');
+      
       // Store original console methods
       const originalError = console.error;
       const originalWarn = console.warn;
@@ -28,29 +40,38 @@ const BugReportModal = ({ isOpen, onClose, userRole, userName, userEmail }) => {
       const warnings = [];
       
       console.error = (...args) => {
-        errors.push({
+        const errorData = {
           type: 'error',
           message: args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' '),
           timestamp: new Date().toISOString()
-        });
+        };
+        console.log('🐛 BugReportModal: Console error captured', errorData);
+        errors.push(errorData);
         originalError.apply(console, args);
       };
       
       console.warn = (...args) => {
-        warnings.push({
+        const warningData = {
           type: 'warning',
           message: args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' '),
           timestamp: new Date().toISOString()
-        });
+        };
+        console.log('🐛 BugReportModal: Console warning captured', warningData);
+        warnings.push(warningData);
         originalWarn.apply(console, args);
       };
       
       // Capture existing errors from window.onerror
       const existingErrors = window.consoleErrors || [];
-      setConsoleErrors([...existingErrors, ...errors, ...warnings]);
+      console.log('🐛 BugReportModal: Existing console errors found', { count: existingErrors.length, errors: existingErrors });
+      
+      const allErrors = [...existingErrors, ...errors, ...warnings];
+      console.log('🐛 BugReportModal: Setting console errors state', { totalErrors: allErrors.length });
+      setConsoleErrors(allErrors);
       
       // Cleanup function
       return () => {
+        console.log('🐛 BugReportModal: Cleaning up console error capture');
         console.error = originalError;
         console.warn = originalWarn;
       };
@@ -59,28 +80,43 @@ const BugReportModal = ({ isOpen, onClose, userRole, userName, userEmail }) => {
 
   // Capture unhandled errors
   useEffect(() => {
+    console.log('🐛 BugReportModal: Setting up unhandled error listeners');
+    
     const handleError = (event) => {
-      setConsoleErrors(prev => [...prev, {
+      const errorData = {
         type: 'unhandled',
         message: event.error?.message || 'Unknown error',
         stack: event.error?.stack || '',
         timestamp: new Date().toISOString()
-      }]);
+      };
+      console.log('🐛 BugReportModal: Unhandled error captured', errorData);
+      setConsoleErrors(prev => {
+        const newErrors = [...prev, errorData];
+        console.log('🐛 BugReportModal: Updated console errors with unhandled error', { totalErrors: newErrors.length });
+        return newErrors;
+      });
     };
 
     const handleUnhandledRejection = (event) => {
-      setConsoleErrors(prev => [...prev, {
+      const rejectionData = {
         type: 'promise',
         message: event.reason?.message || String(event.reason),
         stack: event.reason?.stack || '',
         timestamp: new Date().toISOString()
-      }]);
+      };
+      console.log('🐛 BugReportModal: Unhandled promise rejection captured', rejectionData);
+      setConsoleErrors(prev => {
+        const newErrors = [...prev, rejectionData];
+        console.log('🐛 BugReportModal: Updated console errors with promise rejection', { totalErrors: newErrors.length });
+        return newErrors;
+      });
     };
 
     window.addEventListener('error', handleError);
     window.addEventListener('unhandledrejection', handleUnhandledRejection);
 
     return () => {
+      console.log('🐛 BugReportModal: Removing unhandled error listeners');
       window.removeEventListener('error', handleError);
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     };
@@ -88,18 +124,38 @@ const BugReportModal = ({ isOpen, onClose, userRole, userName, userEmail }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    console.log('🐛 BugReportModal: Input changed', { name, value: value.substring(0, 100) + (value.length > 100 ? '...' : '') });
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        [name]: value
+      };
+      console.log('🐛 BugReportModal: Form data updated', { field: name, newData });
+      return newData;
+    });
   };
 
   const handleSubmit = async (e) => {
+    console.log('🐛 BugReportModal: Form submission started');
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('');
 
     try {
+      console.log('🐛 BugReportModal: Building bug report data', {
+        formData: {
+          description: formData.description?.substring(0, 50) + '...',
+          steps: formData.steps?.substring(0, 50) + '...',
+          hasExpectedBehavior: !!formData.expectedBehavior,
+          hasActualBehavior: !!formData.actualBehavior,
+          hasAdditionalInfo: !!formData.additionalInfo
+        },
+        userRole,
+        userName,
+        userEmail,
+        consoleErrorsCount: consoleErrors.length
+      });
+
       const bugReport = {
         ...formData,
         userRole,
@@ -129,6 +185,15 @@ const BugReportModal = ({ isOpen, onClose, userRole, userName, userEmail }) => {
         }
       };
 
+      console.log('🐛 BugReportModal: Bug report data prepared', {
+        totalSize: JSON.stringify(bugReport).length,
+        consoleErrorsCount: bugReport.consoleErrors.length,
+        browserInfo: bugReport.browserInfo,
+        screenInfo: bugReport.screenInfo,
+        windowInfo: bugReport.windowInfo
+      });
+
+      console.log('🐛 BugReportModal: Sending request to /api/bug-report');
       const response = await fetch('/api/bug-report', {
         method: 'POST',
         headers: {
@@ -137,7 +202,15 @@ const BugReportModal = ({ isOpen, onClose, userRole, userName, userEmail }) => {
         body: JSON.stringify(bugReport)
       });
 
+      console.log('🐛 BugReportModal: Response received', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+
       if (response.ok) {
+        console.log('🐛 BugReportModal: Bug report submitted successfully');
         setSubmitStatus('success');
         setFormData({
           description: '',
@@ -150,29 +223,60 @@ const BugReportModal = ({ isOpen, onClose, userRole, userName, userEmail }) => {
           timestamp: new Date().toISOString()
         });
         setConsoleErrors([]);
+        console.log('🐛 BugReportModal: Form reset and closing in 2 seconds');
         setTimeout(() => {
+          console.log('🐛 BugReportModal: Closing modal after successful submission');
           onClose();
           setSubmitStatus('');
         }, 2000);
       } else {
-        throw new Error('Failed to submit bug report');
+        const errorText = await response.text();
+        console.error('🐛 BugReportModal: Server error response', {
+          status: response.status,
+          statusText: response.statusText,
+          errorText
+        });
+        throw new Error(`Failed to submit bug report: ${response.status} ${response.statusText}`);
       }
     } catch (error) {
-      console.error('Error submitting bug report:', error);
+      console.error('🐛 BugReportModal: Error submitting bug report', {
+        error: error.message,
+        stack: error.stack,
+        name: error.name
+      });
       setSubmitStatus('error');
     } finally {
+      console.log('🐛 BugReportModal: Form submission completed', { isSubmitting: false });
       setIsSubmitting(false);
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    console.log('🐛 BugReportModal: Modal is closed, not rendering');
+    return null;
+  }
+
+  console.log('🐛 BugReportModal: Rendering modal', {
+    isSubmitting,
+    submitStatus,
+    consoleErrorsCount: consoleErrors.length,
+    formDataKeys: Object.keys(formData)
+  });
 
   return (
     <div className="bug-report-overlay">
       <div className="bug-report-modal">
         <div className="bug-report-header">
           <h3>🐛 Report a Bug</h3>
-          <button className="close-button" onClick={onClose}>&times;</button>
+          <button 
+            className="close-button" 
+            onClick={() => {
+              console.log('🐛 BugReportModal: Close button clicked');
+              onClose();
+            }}
+          >
+            &times;
+          </button>
         </div>
         
         <form onSubmit={handleSubmit} className="bug-report-form">

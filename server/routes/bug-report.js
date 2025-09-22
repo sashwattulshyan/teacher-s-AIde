@@ -4,6 +4,8 @@ const router = express.Router();
 
 // Create transporter for sending emails
 const createTransporter = () => {
+  console.log('🐛 BugReport: Creating email transporter');
+  
   // Try to use environment variables for email configuration
   const emailConfig = {
     host: process.env.EMAIL_HOST || 'smtp.gmail.com',
@@ -15,37 +17,72 @@ const createTransporter = () => {
     }
   };
   
-  return nodemailer.createTransport(emailConfig);
+  console.log('🐛 BugReport: Email configuration', {
+    host: emailConfig.host,
+    port: emailConfig.port,
+    secure: emailConfig.secure,
+    hasUser: !!emailConfig.auth.user,
+    hasPass: !!emailConfig.auth.pass,
+    userEmail: emailConfig.auth.user
+  });
+  
+  const transporter = nodemailer.createTransport(emailConfig);
+  console.log('🐛 BugReport: Email transporter created successfully');
+  
+  return transporter;
 };
 
 // Format console errors for email
 const formatConsoleErrors = (errors) => {
+  console.log('🐛 BugReport: Formatting console errors', { errorCount: errors?.length || 0 });
+  
   if (!errors || errors.length === 0) {
+    console.log('🐛 BugReport: No console errors to format');
     return 'No console errors captured.';
   }
 
-  return errors.map((error, index) => {
+  const formattedErrors = errors.map((error, index) => {
     const time = new Date(error.timestamp).toLocaleString();
-    return `${index + 1}. [${error.type.toUpperCase()}] ${time}\n   ${error.message}${error.stack ? `\n   Stack: ${error.stack}` : ''}`;
+    const formatted = `${index + 1}. [${error.type.toUpperCase()}] ${time}\n   ${error.message}${error.stack ? `\n   Stack: ${error.stack}` : ''}`;
+    console.log(`🐛 BugReport: Formatted error ${index + 1}`, { type: error.type, message: error.message.substring(0, 100) });
+    return formatted;
   }).join('\n\n');
+  
+  console.log('🐛 BugReport: Console errors formatted successfully', { totalLength: formattedErrors.length });
+  return formattedErrors;
 };
 
 // Format browser info for email
 const formatBrowserInfo = (browserInfo) => {
-  return Object.entries(browserInfo)
+  console.log('🐛 BugReport: Formatting browser info', { browserInfo });
+  const formatted = Object.entries(browserInfo)
     .map(([key, value]) => `${key}: ${value}`)
     .join('\n');
+  console.log('🐛 BugReport: Browser info formatted', { length: formatted.length });
+  return formatted;
 };
 
 // Format screen info for email
 const formatScreenInfo = (screenInfo) => {
-  return Object.entries(screenInfo)
+  console.log('🐛 BugReport: Formatting screen info', { screenInfo });
+  const formatted = Object.entries(screenInfo)
     .map(([key, value]) => `${key}: ${value}`)
     .join('\n');
+  console.log('🐛 BugReport: Screen info formatted', { length: formatted.length });
+  return formatted;
 };
 
 // POST /api/bug-report
 router.post('/', async (req, res) => {
+  const requestId = Math.random().toString(36).substring(7);
+  console.log(`🐛 BugReport [${requestId}]: POST request received`, {
+    timestamp: new Date().toISOString(),
+    userAgent: req.get('User-Agent'),
+    contentType: req.get('Content-Type'),
+    contentLength: req.get('Content-Length'),
+    ip: req.ip || req.connection.remoteAddress
+  });
+
   try {
     const {
       description,
@@ -64,18 +101,45 @@ router.post('/', async (req, res) => {
       timestamp
     } = req.body;
 
+    console.log(`🐛 BugReport [${requestId}]: Request data received`, {
+      hasDescription: !!description,
+      hasSteps: !!steps,
+      hasExpectedBehavior: !!expectedBehavior,
+      hasActualBehavior: !!actualBehavior,
+      hasAdditionalInfo: !!additionalInfo,
+      userRole,
+      userName,
+      userEmail,
+      consoleErrorsCount: consoleErrors?.length || 0,
+      hasBrowserInfo: !!browserInfo,
+      hasScreenInfo: !!screenInfo,
+      hasWindowInfo: !!windowInfo,
+      url,
+      timestamp,
+      descriptionLength: description?.length || 0,
+      stepsLength: steps?.length || 0
+    });
+
     // Validate required fields
     if (!description || !steps) {
+      console.log(`🐛 BugReport [${requestId}]: Validation failed - missing required fields`, {
+        hasDescription: !!description,
+        hasSteps: !!steps
+      });
       return res.status(400).json({ 
         success: false, 
         message: 'Description and steps are required' 
       });
     }
 
+    console.log(`🐛 BugReport [${requestId}]: Validation passed, proceeding with email creation`);
+
+    console.log(`🐛 BugReport [${requestId}]: Creating email transporter`);
     const transporter = createTransporter();
 
     // Create email content
     const emailSubject = `🐛 Bug Report from ${userRole} - ${userName || 'Unknown User'}`;
+    console.log(`🐛 BugReport [${requestId}]: Email subject created`, { subject: emailSubject });
     
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
@@ -213,20 +277,51 @@ This bug report was automatically generated by Teacher's Aide app.
       html: emailHtml
     };
 
-    await transporter.sendMail(mailOptions);
+    console.log(`🐛 BugReport [${requestId}]: Email options prepared`, {
+      from: mailOptions.from,
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      textLength: mailOptions.text.length,
+      htmlLength: mailOptions.html.length
+    });
 
+    console.log(`🐛 BugReport [${requestId}]: Attempting to send email`);
+    const emailResult = await transporter.sendMail(mailOptions);
+    
+    console.log(`🐛 BugReport [${requestId}]: Email sent successfully`, {
+      messageId: emailResult.messageId,
+      response: emailResult.response,
+      accepted: emailResult.accepted,
+      rejected: emailResult.rejected
+    });
+
+    console.log(`🐛 BugReport [${requestId}]: Sending success response to client`);
     res.json({ 
       success: true, 
       message: 'Bug report sent successfully' 
     });
 
   } catch (error) {
-    console.error('Error sending bug report:', error);
-    res.status(500).json({ 
+    console.error(`🐛 BugReport [${requestId}]: Error occurred`, {
+      error: error.message,
+      stack: error.stack,
+      name: error.name,
+      code: error.code,
+      errno: error.errno,
+      syscall: error.syscall,
+      hostname: error.hostname,
+      port: error.port,
+      timestamp: new Date().toISOString()
+    });
+    
+    const errorResponse = {
       success: false, 
       message: 'Failed to send bug report',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
+    };
+    
+    console.log(`🐛 BugReport [${requestId}]: Sending error response`, errorResponse);
+    res.status(500).json(errorResponse);
   }
 });
 
