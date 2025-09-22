@@ -337,7 +337,6 @@ function App() {
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     };
   }, []);
-
   useEffect(() => {
     try {
       const unsubscribe = onAuthStateChanged(auth, async (user) => {

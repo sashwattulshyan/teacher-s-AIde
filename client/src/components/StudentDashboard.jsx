@@ -31,7 +31,7 @@ const StudentDashboard = () => {
   const [error, setError] = useState('');
   const [showBugReport, setShowBugReport] = useState(false);
   const [user] = useAuthState(auth);
-
+  
   useEffect(() => {
     const fetchClassrooms = async () => {
       if (!user) return;
@@ -583,18 +583,18 @@ const StudentDashboard = () => {
         </div>
         {selectedClassroom && (
           <div className="view-tabs">
-        <button 
+            <button 
               className={`tab-button ${view === 'overview' ? 'active' : ''}`}
               onClick={() => setView('overview')}
-        >
+            >
               📊 Overview
-        </button>
-        <button 
+            </button>
+            <button 
               className={`tab-button ${view === 'unit-detail' ? 'active' : ''}`}
               onClick={() => setView('unit-detail')}
-        >
+            >
               📚 Units
-        </button>
+            </button>
           </div>
         )}
       </div>

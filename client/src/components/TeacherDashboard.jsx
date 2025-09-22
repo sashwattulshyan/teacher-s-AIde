@@ -21,7 +21,6 @@ const TeacherDashboard = () => {
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showBugReport, setShowBugReport] = useState(false);
-
   // Fetch teacher's classrooms in real-time
   useEffect(() => {
     if (!auth.currentUser) return;
