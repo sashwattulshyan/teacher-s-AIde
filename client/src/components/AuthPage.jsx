@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { auth, db } from '../firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { setDoc, doc } from 'firebase/firestore';
 import LoadingSpinner from './LoadingSpinner';
 import './AuthPage.css';
@@ -43,22 +43,35 @@ const AuthPage = ({ initialMode = 'signin' }) => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        // Add user info to Firestore
+        // Add user info to Firestore with email verification status
         await setDoc(doc(db, "users", user.uid), {
           email: user.email,
           firstName: firstName.trim(),
           lastName: lastName.trim(),
           displayName: `${firstName.trim()} ${lastName.trim()}`.trim(),
           role: role,
+          emailVerified: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         });
 
-        // Sign up successful - user is now authenticated
-        setSuccess('Account created successfully! Redirecting...');
+        // Send email verification
+        await sendEmailVerification(user);
         
-        // The user is automatically signed in after signup, so the auth state change
-        // will trigger a redirect in the main App component
-        // Add a small delay to ensure Firestore write is processed
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Sign out the user immediately after signup to require email verification
+        await auth.signOut();
+        
+        setSuccess('Account created successfully! Please check your email and click the verification link to complete your registration.');
+        
+        // Redirect to verification page or show verification message
+        setTimeout(() => {
+          navigate('/verify-email', { 
+            state: { 
+              email: email,
+              message: 'Please check your email and click the verification link to complete your registration.'
+            }
+          });
+        }, 2000);
         
       } else {
         // Handle Sign In

@@ -193,7 +193,15 @@ const BugReportModal = ({ isOpen, onClose, userRole, userName, userEmail }) => {
         windowInfo: bugReport.windowInfo
       });
 
-      console.log('🐛 BugReportModal: Sending request to /api/bug-report');
+      console.log('🐛 BugReportModal: Sending request to /api/bug-report', {
+        url: '/api/bug-report',
+        method: 'POST',
+        bodySize: JSON.stringify(bugReport).length,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        currentUrl: window.location.href
+      });
+      
       const response = await fetch('/api/bug-report', {
         method: 'POST',
         headers: {
@@ -234,19 +242,53 @@ const BugReportModal = ({ isOpen, onClose, userRole, userName, userEmail }) => {
         console.error('🐛 BugReportModal: Server error response', {
           status: response.status,
           statusText: response.statusText,
-          errorText
+          errorText,
+          headers: Object.fromEntries(response.headers.entries()),
+          timestamp: new Date().toISOString()
         });
+        
+        // Try to parse error response as JSON
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+          console.error('🐛 BugReportModal: Parsed error response', errorData);
+        } catch (parseError) {
+          console.error('🐛 BugReportModal: Could not parse error response as JSON', parseError);
+        }
+        
         throw new Error(`Failed to submit bug report: ${response.status} ${response.statusText}`);
       }
     } catch (error) {
       console.error('🐛 BugReportModal: Error submitting bug report', {
         error: error.message,
         stack: error.stack,
-        name: error.name
+        name: error.name,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        currentUrl: window.location.href,
+        networkStatus: navigator.onLine ? 'online' : 'offline'
       });
+      
+      // Check if it's a network error
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        console.error('🐛 BugReportModal: Network error detected', {
+          message: 'Failed to connect to server',
+          possibleCauses: [
+            'Server is down',
+            'Network connectivity issues',
+            'CORS configuration problems',
+            'API endpoint not available'
+          ]
+        });
+      }
+      
       setSubmitStatus('error');
     } finally {
-      console.log('🐛 BugReportModal: Form submission completed', { isSubmitting: false });
+      console.log('🐛 BugReportModal: Form submission completed', { 
+        isSubmitting: false,
+        submitStatus,
+        timestamp: new Date().toISOString()
+      });
       setIsSubmitting(false);
     }
   };

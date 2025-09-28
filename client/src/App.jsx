@@ -9,6 +9,7 @@ import StudentDashboard from "./components/StudentDashboard";
 import StudentProgress from "./components/StudentProgress";
 import LandingPage from './components/LandingPage';
 import AuthPage from './components/AuthPage';
+import EmailVerification from './components/EmailVerification';
 import SettingsDropdown from './components/SettingsDropdown';
 import './App.css';
 
@@ -355,12 +356,30 @@ function App() {
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
         try {
           if (user) {
+            // Check if email is verified
+            if (!user.emailVerified) {
+              console.log('User email not verified, redirecting to verification page');
+              setCurrentUser(user);
+              setUserRole('');
+              return;
+            }
+            
             setCurrentUser(user);
             const userDocRef = doc(db, 'users', user.uid);
             const userDoc = await getDoc(userDocRef);
             if (userDoc.exists()) {
-              const role = userDoc.data().role;
+              const userData = userDoc.data();
+              const role = userData.role;
               setUserRole(role);
+              
+              // Update email verification status in Firestore
+              if (!userData.emailVerified) {
+                await setDoc(doc(db, 'users', user.uid), {
+                  ...userData,
+                  emailVerified: true,
+                  updatedAt: new Date().toISOString()
+                }, { merge: true });
+              }
             } else {
               // User exists in Firebase Auth but not in Firestore
               // This could be a user from the old project - create a new user document
@@ -373,6 +392,7 @@ function App() {
                 lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
                 displayName: user.displayName || user.email,
                 role: 'student', // Default role
+                emailVerified: true,
                 createdAt: new Date().toISOString()
               });
               
@@ -420,39 +440,44 @@ function App() {
           {/* Public Routes */}
           <Route path="/" element={
             currentUser ? (
-              userRole === 'teacher' ? (
-                <Navigate to="/teacher" replace />
-              ) : userRole === 'student' ? (
-                <Navigate to="/student" replace />
-              ) : (
-                <div style={{ padding: '20px', color: 'white', minHeight: '100vh', background: '#0f172a' }}>
-                  <h2>Loading user role...</h2>
-                  <p>User: {currentUser.email}</p>
-                  <p>Role: {userRole || 'Loading...'}</p>
-                  {error && <p style={{ color: 'red' }}>Error: {error}</p>}
-                  <div style={{ marginTop: '20px' }}>
-                    <button 
-                      onClick={() => window.location.reload()} 
-                      style={{ marginRight: '10px', padding: '10px 20px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
-                    >
-                      Refresh Page
-                    </button>
-                    <button 
-                      onClick={async () => {
-                        try {
-                          await signOut(auth);
-                          window.location.href = '/';
-                        } catch (error) {
-                          console.error('Error signing out:', error);
-                          window.location.href = '/';
-                        }
-                      }}
-                      style={{ padding: '10px 20px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
-                    >
-                      Sign Out
-                    </button>
+              // Check if email is verified
+              currentUser.emailVerified ? (
+                userRole === 'teacher' ? (
+                  <Navigate to="/teacher" replace />
+                ) : userRole === 'student' ? (
+                  <Navigate to="/student" replace />
+                ) : (
+                  <div style={{ padding: '20px', color: 'white', minHeight: '100vh', background: '#0f172a' }}>
+                    <h2>Loading user role...</h2>
+                    <p>User: {currentUser.email}</p>
+                    <p>Role: {userRole || 'Loading...'}</p>
+                    {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+                    <div style={{ marginTop: '20px' }}>
+                      <button 
+                        onClick={() => window.location.reload()} 
+                        style={{ marginRight: '10px', padding: '10px 20px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                      >
+                        Refresh Page
+                      </button>
+                      <button 
+                        onClick={async () => {
+                          try {
+                            await signOut(auth);
+                            window.location.href = '/';
+                          } catch (error) {
+                            console.error('Error signing out:', error);
+                            window.location.href = '/';
+                          }
+                        }}
+                        style={{ padding: '10px 20px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                      >
+                        Sign Out
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )
+              ) : (
+                <Navigate to="/verify-email" replace />
               )
             ) : (
               <LandingPage />
@@ -486,6 +511,9 @@ function App() {
               <AuthPage initialMode="signin" />
             )
           } />
+          
+          {/* Email Verification Route */}
+          <Route path="/verify-email" element={<EmailVerification />} />
           
           {/* Protected Teacher Routes */}
           <Route path="/teacher/*" element={

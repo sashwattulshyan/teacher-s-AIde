@@ -182,6 +182,139 @@ router.post('/login',
   }
 );
 
+// Send email verification
+router.post('/send-verification', async (req, res) => {
+  try {
+    const { uid } = req.body;
+    
+    if (!uid) {
+      return res.status(400).json({
+        error: 'User ID is required',
+        message: 'Please provide a valid user ID'
+      });
+    }
+
+    // Get user from Firebase Auth
+    const userRecord = await auth.getUser(uid);
+    
+    if (!userRecord) {
+      return res.status(404).json({
+        error: 'User not found',
+        message: 'User with the provided ID does not exist'
+      });
+    }
+
+    // Generate email verification link
+    const actionCodeSettings = {
+      url: `${process.env.CLIENT_URL || 'http://localhost:5173'}/verify-email`,
+      handleCodeInApp: true
+    };
+
+    const link = await auth.generateEmailVerificationLink(userRecord.email, actionCodeSettings);
+    
+    console.log('📧 Email verification link generated', {
+      uid: userRecord.uid,
+      email: userRecord.email,
+      linkGenerated: !!link
+    });
+
+    res.json({
+      success: true,
+      message: 'Email verification link generated successfully',
+      verificationLink: link
+    });
+
+  } catch (error) {
+    console.error('Error generating email verification link:', error);
+    res.status(500).json({
+      error: 'Internal server error',
+      message: error.message || 'Error generating email verification link'
+    });
+  }
+});
+
+// Check email verification status
+router.get('/verification-status/:uid', async (req, res) => {
+  try {
+    const { uid } = req.params;
+    
+    if (!uid) {
+      return res.status(400).json({
+        error: 'User ID is required',
+        message: 'Please provide a valid user ID'
+      });
+    }
+
+    // Get user from Firebase Auth
+    const userRecord = await auth.getUser(uid);
+    
+    if (!userRecord) {
+      return res.status(404).json({
+        error: 'User not found',
+        message: 'User with the provided ID does not exist'
+      });
+    }
+
+    // Check verification status in Firestore
+    const userDoc = await db.collection('users').doc(uid).get();
+    const userData = userDoc.exists ? userDoc.data() : null;
+
+    res.json({
+      success: true,
+      emailVerified: userRecord.emailVerified,
+      firestoreVerified: userData?.emailVerified || false,
+      email: userRecord.email,
+      lastSignInTime: userRecord.metadata.lastSignInTime,
+      creationTime: userRecord.metadata.creationTime
+    });
+
+  } catch (error) {
+    console.error('Error checking verification status:', error);
+    res.status(500).json({
+      error: 'Internal server error',
+      message: error.message || 'Error checking verification status'
+    });
+  }
+});
+
+// Update email verification status in Firestore
+router.post('/update-verification-status', async (req, res) => {
+  try {
+    const { uid, emailVerified } = req.body;
+    
+    if (!uid) {
+      return res.status(400).json({
+        error: 'User ID is required',
+        message: 'Please provide a valid user ID'
+      });
+    }
+
+    // Update user document in Firestore
+    await db.collection('users').doc(uid).update({
+      emailVerified: emailVerified || false,
+      updatedAt: new Date().toISOString()
+    });
+
+    console.log('📧 Email verification status updated', {
+      uid,
+      emailVerified: emailVerified || false
+    });
+
+    res.json({
+      success: true,
+      message: 'Email verification status updated successfully',
+      emailVerified: emailVerified || false
+    });
+
+  } catch (error) {
+    console.error('Error updating verification status:', error);
+    res.status(500).json({
+      error: 'Internal server error',
+      message: error.message || 'Error updating verification status'
+    });
+  }
+});
+
 // Password reset (send email)
 router.post('/password-reset',
   [body('email').isEmail().withMessage('Valid email is required')],
