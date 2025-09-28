@@ -404,12 +404,34 @@ function App() {
           }
         } catch (error) {
           console.error("Error in onAuthStateChanged:", error);
-          // If it's an auth error, sign out the user to clear invalid tokens
-          if (error.code === 'auth/user-token-expired' || error.code === 'auth/invalid-credential') {
-            console.log('Auth token expired or invalid, signing out user...');
-            await signOut(auth);
+          
+          // Handle specific auth errors
+          if (error.code === 'auth/user-token-expired') {
+            console.log('🔄 Auth token expired, refreshing...');
+            try {
+              await signOut(auth);
+              // Clear any cached auth data
+              localStorage.removeItem('firebase:authUser');
+              sessionStorage.clear();
+            } catch (signOutError) {
+              console.error('Error signing out:', signOutError);
+            }
+          } else if (error.code === 'auth/invalid-credential') {
+            console.log('🔐 Invalid credentials, clearing auth state...');
+            try {
+              await signOut(auth);
+              localStorage.removeItem('firebase:authUser');
+              sessionStorage.clear();
+            } catch (signOutError) {
+              console.error('Error clearing auth state:', signOutError);
+            }
+          } else if (error.code === 'auth/network-request-failed') {
+            console.log('🌐 Network error, will retry...');
+            setError('Network error. Please check your connection and try again.');
+          } else {
+            console.log('❌ Other auth error:', error.code, error.message);
+            setError(`Authentication error: ${error.message}`);
           }
-          setError(error.message);
         } finally {
             setLoading(false);
           }

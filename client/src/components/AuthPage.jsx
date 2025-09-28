@@ -84,8 +84,33 @@ const AuthPage = ({ initialMode = 'signin' }) => {
         // No need to manually navigate - let the auth state change handle it
       }
     } catch (err) {
-      setError(err.message);
-      console.error("Error:", err);
+      console.error("Auth error:", err);
+      
+      // Handle specific Firebase auth errors
+      if (err.code === 'auth/invalid-credential') {
+        setError('Invalid email or password. Please check your credentials and try again.');
+      } else if (err.code === 'auth/user-not-found') {
+        setError('No account found with this email address. Please sign up first.');
+      } else if (err.code === 'auth/wrong-password') {
+        setError('Incorrect password. Please try again.');
+      } else if (err.code === 'auth/too-many-requests') {
+        setError('Too many failed attempts. Please try again later.');
+      } else if (err.code === 'auth/network-request-failed') {
+        setError('Network error. Please check your connection and try again.');
+      } else if (err.code === 'auth/user-token-expired') {
+        setError('Session expired. Please sign in again.');
+        // Clear any cached auth data
+        localStorage.removeItem('firebase:authUser');
+        sessionStorage.clear();
+      } else if (err.code === 'auth/email-already-in-use') {
+        setError('An account with this email already exists. Please sign in instead.');
+      } else if (err.code === 'auth/weak-password') {
+        setError('Password is too weak. Please choose a stronger password.');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('Please enter a valid email address.');
+      } else {
+        setError(err.message || 'An error occurred. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
