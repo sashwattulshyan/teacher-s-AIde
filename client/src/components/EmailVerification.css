@@ -96,6 +96,30 @@
   margin-bottom: 30px;
 }
 
+.check-verification-button {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 10px;
+}
+
+.check-verification-button:hover {
+  background: #218838;
+  transform: translateY(-2px);
+}
+
+.check-verification-button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .resend-button,
 .signin-button {
   background: #007bff;
@@ -179,6 +203,7 @@
     gap: 10px;
   }
   
+  .check-verification-button,
   .resend-button,
   .signin-button,
   .back-button {

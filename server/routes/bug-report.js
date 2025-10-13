@@ -4,125 +4,21 @@ const router = express.Router();
 
 // Create transporter for sending emails
 const createTransporter = () => {
-  console.log('🐛 BugReport: Creating email transporter');
-  
-  // Log all environment variables related to email
-  console.log('🐛 BugReport: Environment variables check', {
-    EMAIL_HOST: process.env.EMAIL_HOST,
-    EMAIL_PORT: process.env.EMAIL_PORT,
-    EMAIL_USER: process.env.EMAIL_USER,
-    EMAIL_PASS: process.env.EMAIL_PASS ? '***SET***' : 'NOT_SET',
-    GMAIL_APP_PASSWORD: process.env.GMAIL_APP_PASSWORD ? '***SET***' : 'NOT_SET',
-    NODE_ENV: process.env.NODE_ENV,
-    PORT: process.env.PORT
-  });
-  
-  // Try to use environment variables for email configuration
   const emailConfig = {
     host: process.env.EMAIL_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.EMAIL_PORT) || 587,
-    secure: false, // true for 465, false for other ports
+    secure: false,
     auth: {
       user: process.env.EMAIL_USER || 'teachers.aide.app@gmail.com',
       pass: process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD
     }
   };
   
-  console.log('🐛 BugReport: Email configuration', {
-    host: emailConfig.host,
-    port: emailConfig.port,
-    secure: emailConfig.secure,
-    hasUser: !!emailConfig.auth.user,
-    hasPass: !!emailConfig.auth.pass,
-    userEmail: emailConfig.auth.user,
-    passLength: emailConfig.auth.pass ? emailConfig.auth.pass.length : 0
-  });
-  
-  // Validate required configuration
-  if (!emailConfig.auth.user) {
-    console.error('🐛 BugReport: ERROR - No email user configured');
-    throw new Error('Email user not configured');
-  }
-  
-  if (!emailConfig.auth.pass) {
-    console.error('🐛 BugReport: ERROR - No email password configured');
-    throw new Error('Email password not configured');
-  }
-  
-  const transporter = nodemailer.createTransport(emailConfig);
-  console.log('🐛 BugReport: Email transporter created successfully');
-  
-  // Verify transporter configuration
-  transporter.verify((error, success) => {
-    if (error) {
-      console.error('🐛 BugReport: Email transporter verification failed', {
-        error: error.message,
-        code: error.code,
-        command: error.command,
-        response: error.response
-      });
-    } else {
-      console.log('🐛 BugReport: Email transporter verified successfully', {
-        success: true,
-        timestamp: new Date().toISOString()
-      });
-    }
-  });
-  
-  return transporter;
-};
-
-// Format console errors for email
-const formatConsoleErrors = (errors) => {
-  console.log('🐛 BugReport: Formatting console errors', { errorCount: errors?.length || 0 });
-  
-  if (!errors || errors.length === 0) {
-    console.log('🐛 BugReport: No console errors to format');
-    return 'No console errors captured.';
-  }
-
-  const formattedErrors = errors.map((error, index) => {
-    const time = new Date(error.timestamp).toLocaleString();
-    const formatted = `${index + 1}. [${error.type.toUpperCase()}] ${time}\n   ${error.message}${error.stack ? `\n   Stack: ${error.stack}` : ''}`;
-    console.log(`🐛 BugReport: Formatted error ${index + 1}`, { type: error.type, message: error.message.substring(0, 100) });
-    return formatted;
-  }).join('\n\n');
-  
-  console.log('🐛 BugReport: Console errors formatted successfully', { totalLength: formattedErrors.length });
-  return formattedErrors;
-};
-
-// Format browser info for email
-const formatBrowserInfo = (browserInfo) => {
-  console.log('🐛 BugReport: Formatting browser info', { browserInfo });
-  const formatted = Object.entries(browserInfo)
-    .map(([key, value]) => `${key}: ${value}`)
-    .join('\n');
-  console.log('🐛 BugReport: Browser info formatted', { length: formatted.length });
-  return formatted;
-};
-
-// Format screen info for email
-const formatScreenInfo = (screenInfo) => {
-  console.log('🐛 BugReport: Formatting screen info', { screenInfo });
-  const formatted = Object.entries(screenInfo)
-    .map(([key, value]) => `${key}: ${value}`)
-    .join('\n');
-  console.log('🐛 BugReport: Screen info formatted', { length: formatted.length });
-  return formatted;
+  return nodemailer.createTransport(emailConfig);
 };
 
 // POST /api/bug-report
 router.post('/', async (req, res) => {
-  const requestId = Math.random().toString(36).substring(7);
-  console.log(`🐛 BugReport [${requestId}]: POST request received`, {
-    timestamp: new Date().toISOString(),
-    userAgent: req.get('User-Agent'),
-    contentType: req.get('Content-Type'),
-    contentLength: req.get('Content-Length'),
-    ip: req.ip || req.connection.remoteAddress
-  });
-
   try {
     const {
       description,
@@ -133,141 +29,106 @@ router.post('/', async (req, res) => {
       userRole,
       userName,
       userEmail,
-      consoleErrors,
-      browserInfo,
-      screenInfo,
-      windowInfo,
+      userAgent,
       url,
       timestamp
     } = req.body;
 
-    console.log(`🐛 BugReport [${requestId}]: Request data received`, {
-      hasDescription: !!description,
-      hasSteps: !!steps,
-      hasExpectedBehavior: !!expectedBehavior,
-      hasActualBehavior: !!actualBehavior,
-      hasAdditionalInfo: !!additionalInfo,
-      userRole,
-      userName,
-      userEmail,
-      consoleErrorsCount: consoleErrors?.length || 0,
-      hasBrowserInfo: !!browserInfo,
-      hasScreenInfo: !!screenInfo,
-      hasWindowInfo: !!windowInfo,
-      url,
-      timestamp,
-      descriptionLength: description?.length || 0,
-      stepsLength: steps?.length || 0
-    });
-
     // Validate required fields
     if (!description || !steps) {
-      console.log(`🐛 BugReport [${requestId}]: Validation failed - missing required fields`, {
-        hasDescription: !!description,
-        hasSteps: !!steps
-      });
       return res.status(400).json({ 
         success: false, 
         message: 'Description and steps are required' 
       });
     }
 
-    console.log(`🐛 BugReport [${requestId}]: Validation passed, proceeding with email creation`);
+    // Check if email credentials are configured
+    const hasEmailConfig = process.env.EMAIL_USER && (process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD);
+    
+    if (!hasEmailConfig) {
+      console.log('Email not configured, logging bug report to console instead');
+      console.log('🐛 BUG REPORT:', {
+        description,
+        steps,
+        expectedBehavior,
+        actualBehavior,
+        additionalInfo,
+        userRole,
+        userName,
+        userEmail,
+        userAgent,
+        url,
+        timestamp
+      });
+      
+      return res.json({ 
+        success: true, 
+        message: 'Bug report logged successfully (email not configured)' 
+      });
+    }
 
-    console.log(`🐛 BugReport [${requestId}]: Creating email transporter`);
     const transporter = createTransporter();
 
     // Create email content
     const emailSubject = `🐛 Bug Report from ${userRole} - ${userName || 'Unknown User'}`;
-    console.log(`🐛 BugReport [${requestId}]: Email subject created`, { subject: emailSubject });
     
     const emailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f8fafc;">
-        <div style="background: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-          <h1 style="color: #dc2626; margin-top: 0; display: flex; align-items: center;">
-            🐛 Bug Report
-          </h1>
-          
-          <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-            <h3 style="margin-top: 0; color: #374151;">Report Details</h3>
-            <p><strong>User:</strong> ${userName || 'Unknown'} (${userEmail || 'No email'})</p>
-            <p><strong>Role:</strong> ${userRole || 'Unknown'}</p>
-            <p><strong>URL:</strong> <a href="${url}" target="_blank">${url}</a></p>
-            <p><strong>Time:</strong> ${new Date(timestamp).toLocaleString()}</p>
-          </div>
+      <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
+        <h1 style="color: #dc2626;">🐛 Bug Report</h1>
+        
+        <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+          <h3>Report Details</h3>
+          <p><strong>User:</strong> ${userName || 'Unknown'} (${userEmail || 'No email'})</p>
+          <p><strong>Role:</strong> ${userRole || 'Unknown'}</p>
+          <p><strong>URL:</strong> <a href="${url}">${url}</a></p>
+          <p><strong>Time:</strong> ${new Date(timestamp).toLocaleString()}</p>
+        </div>
 
-          <div style="margin-bottom: 20px;">
-            <h3 style="color: #374151;">🐛 What went wrong?</h3>
-            <div style="background: #fef2f2; padding: 15px; border-radius: 8px; border-left: 4px solid #dc2626;">
-              <p style="margin: 0; white-space: pre-wrap;">${description}</p>
-            </div>
+        <div style="margin-bottom: 20px;">
+          <h3>🐛 What went wrong?</h3>
+          <div style="background: #fef2f2; padding: 15px; border-radius: 8px;">
+            <p style="white-space: pre-wrap;">${description}</p>
           </div>
+        </div>
 
-          <div style="margin-bottom: 20px;">
-            <h3 style="color: #374151;">📝 Steps to reproduce</h3>
-            <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6;">
-              <p style="margin: 0; white-space: pre-wrap;">${steps}</p>
-            </div>
+        <div style="margin-bottom: 20px;">
+          <h3>📝 Steps to reproduce</h3>
+          <div style="background: #f0f9ff; padding: 15px; border-radius: 8px;">
+            <p style="white-space: pre-wrap;">${steps}</p>
           </div>
+        </div>
 
-          ${expectedBehavior ? `
-          <div style="margin-bottom: 20px;">
-            <h3 style="color: #374151;">✅ Expected behavior</h3>
-            <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981;">
-              <p style="margin: 0; white-space: pre-wrap;">${expectedBehavior}</p>
-            </div>
+        ${expectedBehavior ? `
+        <div style="margin-bottom: 20px;">
+          <h3>✅ Expected behavior</h3>
+          <div style="background: #f0fdf4; padding: 15px; border-radius: 8px;">
+            <p style="white-space: pre-wrap;">${expectedBehavior}</p>
           </div>
-          ` : ''}
+        </div>
+        ` : ''}
 
-          ${actualBehavior ? `
-          <div style="margin-bottom: 20px;">
-            <h3 style="color: #374151;">❌ Actual behavior</h3>
-            <div style="background: #fef2f2; padding: 15px; border-radius: 8px; border-left: 4px solid #dc2626;">
-              <p style="margin: 0; white-space: pre-wrap;">${actualBehavior}</p>
-            </div>
+        ${actualBehavior ? `
+        <div style="margin-bottom: 20px;">
+          <h3>❌ Actual behavior</h3>
+          <div style="background: #fef2f2; padding: 15px; border-radius: 8px;">
+            <p style="white-space: pre-wrap;">${actualBehavior}</p>
           </div>
-          ` : ''}
+        </div>
+        ` : ''}
 
-          ${additionalInfo ? `
-          <div style="margin-bottom: 20px;">
-            <h3 style="color: #374151;">ℹ️ Additional information</h3>
-            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 4px solid #6b7280;">
-              <p style="margin: 0; white-space: pre-wrap;">${additionalInfo}</p>
-            </div>
+        ${additionalInfo ? `
+        <div style="margin-bottom: 20px;">
+          <h3>ℹ️ Additional information</h3>
+          <div style="background: #f8fafc; padding: 15px; border-radius: 8px;">
+            <p style="white-space: pre-wrap;">${additionalInfo}</p>
           </div>
-          ` : ''}
+        </div>
+        ` : ''}
 
-          <div style="margin-bottom: 20px;">
-            <h3 style="color: #374151;">🖥️ Browser Information</h3>
-            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 12px;">
-              <pre style="margin: 0; white-space: pre-wrap;">${formatBrowserInfo(browserInfo)}</pre>
-            </div>
-          </div>
-
-          <div style="margin-bottom: 20px;">
-            <h3 style="color: #374151;">📱 Screen Information</h3>
-            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 12px;">
-              <pre style="margin: 0; white-space: pre-wrap;">${formatScreenInfo(screenInfo)}</pre>
-            </div>
-          </div>
-
-          <div style="margin-bottom: 20px;">
-            <h3 style="color: #374151;">🪟 Window Information</h3>
-            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 12px;">
-              <pre style="margin: 0; white-space: pre-wrap;">${formatScreenInfo(windowInfo)}</pre>
-            </div>
-          </div>
-
-          <div style="margin-bottom: 20px;">
-            <h3 style="color: #374151;">🚨 Console Errors (${consoleErrors?.length || 0})</h3>
-            <div style="background: #1f2937; color: #f9fafb; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;">
-              <pre style="margin: 0; white-space: pre-wrap;">${formatConsoleErrors(consoleErrors)}</pre>
-            </div>
-          </div>
-
-          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280; font-size: 14px;">
-            <p>This bug report was automatically generated by Teacher's Aide app.</p>
-            <p>Please respond to this email if you need more information from the user.</p>
+        <div style="margin-bottom: 20px;">
+          <h3>🖥️ Browser Information</h3>
+          <div style="background: #f8fafc; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 12px;">
+            <p style="white-space: pre-wrap;">${userAgent}</p>
           </div>
         </div>
       </div>
@@ -293,19 +154,7 @@ ${actualBehavior ? `Actual behavior:\n${actualBehavior}\n` : ''}
 ${additionalInfo ? `Additional information:\n${additionalInfo}\n` : ''}
 
 Browser Information:
-${formatBrowserInfo(browserInfo)}
-
-Screen Information:
-${formatScreenInfo(screenInfo)}
-
-Window Information:
-${formatScreenInfo(windowInfo)}
-
-Console Errors (${consoleErrors?.length || 0}):
-${formatConsoleErrors(consoleErrors)}
-
----
-This bug report was automatically generated by Teacher's Aide app.
+${userAgent}
     `;
 
     // Send email
@@ -317,123 +166,28 @@ This bug report was automatically generated by Teacher's Aide app.
       html: emailHtml
     };
 
-    console.log(`🐛 BugReport [${requestId}]: Email options prepared`, {
-      from: mailOptions.from,
-      to: mailOptions.to,
-      subject: mailOptions.subject,
-      textLength: mailOptions.text.length,
-      htmlLength: mailOptions.html.length,
-      subjectLength: mailOptions.subject.length
-    });
+    await transporter.sendMail(mailOptions);
     
-    // Validate email content
-    if (!mailOptions.from || !mailOptions.to) {
-      console.error(`🐛 BugReport [${requestId}]: Email validation failed - missing from/to`, {
-        from: mailOptions.from,
-        to: mailOptions.to
-      });
-      throw new Error('Email from/to addresses are required');
-    }
-    
-    if (!mailOptions.subject || mailOptions.subject.trim().length === 0) {
-      console.error(`🐛 BugReport [${requestId}]: Email validation failed - empty subject`);
-      throw new Error('Email subject is required');
-    }
-    
-    if (!mailOptions.text || mailOptions.text.trim().length === 0) {
-      console.error(`🐛 BugReport [${requestId}]: Email validation failed - empty text content`);
-      throw new Error('Email text content is required');
-    }
-    
-    console.log(`🐛 BugReport [${requestId}]: Email content validation passed`, {
-      hasFrom: !!mailOptions.from,
-      hasTo: !!mailOptions.to,
-      hasSubject: !!mailOptions.subject,
-      hasText: !!mailOptions.text,
-      hasHtml: !!mailOptions.html
-    });
-
-    console.log(`🐛 BugReport [${requestId}]: Attempting to send email`);
-    
-    // Add timeout and detailed error handling for email sending
-    const emailPromise = transporter.sendMail(mailOptions);
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Email sending timeout after 30 seconds')), 30000);
-    });
-    
-    const emailResult = await Promise.race([emailPromise, timeoutPromise]);
-    
-    console.log(`🐛 BugReport [${requestId}]: Email sent successfully`, {
-      messageId: emailResult.messageId,
-      response: emailResult.response,
-      accepted: emailResult.accepted,
-      rejected: emailResult.rejected,
-      envelope: emailResult.envelope,
-      timestamp: new Date().toISOString()
-    });
-
-    console.log(`🐛 BugReport [${requestId}]: Sending success response to client`);
     res.json({ 
       success: true, 
       message: 'Bug report sent successfully' 
     });
 
   } catch (error) {
-    console.error(`🐛 BugReport [${requestId}]: Error occurred`, {
-      error: error.message,
-      stack: error.stack,
-      name: error.name,
-      code: error.code,
-      errno: error.errno,
-      syscall: error.syscall,
-      hostname: error.hostname,
-      port: error.port,
-      command: error.command,
-      response: error.response,
-      responseCode: error.responseCode,
-      timestamp: new Date().toISOString()
-    });
-    
-    // Check if it's an email-specific error
-    if (error.code === 'EAUTH' || error.code === 'EENVELOPE' || error.code === 'EMESSAGE') {
-      console.error(`🐛 BugReport [${requestId}]: Email authentication/configuration error`, {
-        code: error.code,
-        command: error.command,
-        response: error.response
-      });
-    }
-    
-    const errorResponse = {
+    console.error('Error sending bug report:', error);
+    res.status(500).json({
       success: false, 
       message: 'Failed to send bug report',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
-      errorCode: error.code,
-      timestamp: new Date().toISOString()
-    };
-    
-    console.log(`🐛 BugReport [${requestId}]: Sending error response`, errorResponse);
-    res.status(500).json(errorResponse);
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
   }
 });
 
 // Test endpoint for email configuration
 router.get('/test-email', async (req, res) => {
-  const requestId = Math.random().toString(36).substring(7);
-  console.log(`🐛 BugReport [${requestId}]: Testing email configuration`);
-  
   try {
-    // Log environment variables
-    console.log(`🐛 BugReport [${requestId}]: Environment check`, {
-      EMAIL_HOST: process.env.EMAIL_HOST,
-      EMAIL_PORT: process.env.EMAIL_PORT,
-      EMAIL_USER: process.env.EMAIL_USER,
-      EMAIL_PASS: process.env.EMAIL_PASS ? '***SET***' : 'NOT_SET',
-      GMAIL_APP_PASSWORD: process.env.GMAIL_APP_PASSWORD ? '***SET***' : 'NOT_SET'
-    });
-    
     const transporter = createTransporter();
     
-    // Test email sending
     const testMailOptions = {
       from: process.env.EMAIL_USER || 'teachers.aide.app@gmail.com',
       to: 'teachers.aide.app@gmail.com',
@@ -442,36 +196,20 @@ router.get('/test-email', async (req, res) => {
       html: '<h1>Email Configuration Test</h1><p>This is a test email to verify email configuration.</p>'
     };
     
-    console.log(`🐛 BugReport [${requestId}]: Sending test email`);
     const result = await transporter.sendMail(testMailOptions);
-    
-    console.log(`🐛 BugReport [${requestId}]: Test email sent successfully`, {
-      messageId: result.messageId,
-      accepted: result.accepted,
-      rejected: result.rejected
-    });
     
     res.json({
       success: true,
       message: 'Email configuration test successful',
-      messageId: result.messageId,
-      timestamp: new Date().toISOString()
+      messageId: result.messageId
     });
     
   } catch (error) {
-    console.error(`🐛 BugReport [${requestId}]: Email test failed`, {
-      error: error.message,
-      code: error.code,
-      command: error.command,
-      response: error.response
-    });
-    
+    console.error('Email test failed:', error);
     res.status(500).json({
       success: false,
       message: 'Email configuration test failed',
-      error: error.message,
-      code: error.code,
-      timestamp: new Date().toISOString()
+      error: error.message
     });
   }
 });

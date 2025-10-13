@@ -79,6 +79,37 @@ const EmailVerification = () => {
     navigate('/');
   };
 
+  const handleManualVerificationCheck = async () => {
+    if (!user) {
+      setError('Please sign in to check verification status.');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    setMessage('');
+
+    try {
+      // Reload the user to get the latest verification status
+      await user.reload();
+      const currentUser = auth.currentUser;
+      
+      if (currentUser && currentUser.emailVerified) {
+        setMessage('Email verified successfully! Redirecting to dashboard...');
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 1500);
+      } else {
+        setError('Email is not yet verified. Please check your email and click the verification link.');
+      }
+    } catch (err) {
+      console.error('Error checking verification status:', err);
+      setError('Error checking verification status. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) {
     return <LoadingSpinner />;
   }
@@ -121,19 +152,29 @@ const EmailVerification = () => {
 
           <div className="verification-actions">
             {user ? (
-              <button 
-                onClick={handleResendVerification}
-                disabled={resendLoading || resendCooldown > 0}
-                className="resend-button"
-              >
-                {resendLoading ? (
-                  'Sending...'
-                ) : resendCooldown > 0 ? (
-                  `Resend in ${resendCooldown}s`
-                ) : (
-                  'Resend Verification Email'
-                )}
-              </button>
+              <>
+                <button 
+                  onClick={handleManualVerificationCheck}
+                  disabled={loading}
+                  className="check-verification-button"
+                >
+                  {loading ? 'Checking...' : 'I\'ve Verified My Email'}
+                </button>
+                
+                <button 
+                  onClick={handleResendVerification}
+                  disabled={resendLoading || resendCooldown > 0}
+                  className="resend-button"
+                >
+                  {resendLoading ? (
+                    'Sending...'
+                  ) : resendCooldown > 0 ? (
+                    `Resend in ${resendCooldown}s`
+                  ) : (
+                    'Resend Verification Email'
+                  )}
+                </button>
+              </>
             ) : (
               <button 
                 onClick={handleSignIn}
