@@ -7,7 +7,6 @@ import ClassroomManager from './ClassroomManager';
 import UnitManager from './CourseManager';
 import LessonManager from './LessonManager';
 import TeacherAnalytics from './TeacherAnalytics';
-import BugReportModal from './BugReportModal';
 import './TeacherDashboard.css';
 
 const TeacherDashboard = () => {
@@ -20,7 +19,6 @@ const TeacherDashboard = () => {
   const [selectedUnit, setSelectedUnit] = useState(null);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [showBugReport, setShowBugReport] = useState(false);
   // Fetch teacher's classrooms in real-time
   useEffect(() => {
     if (!auth.currentUser) return;
@@ -152,21 +150,6 @@ const TeacherDashboard = () => {
       <div className="dashboard-header">
         <h1>Teacher Dashboard</h1>
         <div className="header-actions">
-          <button 
-            className="bug-report-btn"
-            onClick={() => {
-              console.log('🐛 TeacherDashboard: Bug report button clicked', {
-                user: auth.currentUser?.email,
-                userRole: 'teacher',
-                timestamp: new Date().toISOString(),
-                currentPath: window.location.pathname
-              });
-              setShowBugReport(true);
-            }}
-            title="Report a bug or issue"
-          >
-            🐛 Report Bug
-          </button>
         </div>
         <div className="breadcrumb">
           <span 
@@ -250,17 +233,6 @@ const TeacherDashboard = () => {
         )}
       </div>
 
-      {/* Bug Report Modal */}
-      <BugReportModal
-        isOpen={showBugReport}
-        onClose={() => {
-          console.log('🐛 TeacherDashboard: Bug report modal closed');
-          setShowBugReport(false);
-        }}
-        userRole="teacher"
-        userName={auth.currentUser?.displayName || auth.currentUser?.email}
-        userEmail={auth.currentUser?.email}
-      />
     </div>
   );
 };

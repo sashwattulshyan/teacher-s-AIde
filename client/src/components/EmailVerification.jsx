@@ -151,30 +151,28 @@ const EmailVerification = () => {
           </div>
 
           <div className="verification-actions">
+            <button 
+              onClick={handleManualVerificationCheck}
+              disabled={loading}
+              className="check-verification-button"
+            >
+              {loading ? 'Checking...' : 'I\'ve Verified My Email'}
+            </button>
+            
             {user ? (
-              <>
-                <button 
-                  onClick={handleManualVerificationCheck}
-                  disabled={loading}
-                  className="check-verification-button"
-                >
-                  {loading ? 'Checking...' : 'I\'ve Verified My Email'}
-                </button>
-                
-                <button 
-                  onClick={handleResendVerification}
-                  disabled={resendLoading || resendCooldown > 0}
-                  className="resend-button"
-                >
-                  {resendLoading ? (
-                    'Sending...'
-                  ) : resendCooldown > 0 ? (
-                    `Resend in ${resendCooldown}s`
-                  ) : (
-                    'Resend Verification Email'
-                  )}
-                </button>
-              </>
+              <button 
+                onClick={handleResendVerification}
+                disabled={resendLoading || resendCooldown > 0}
+                className="resend-button"
+              >
+                {resendLoading ? (
+                  'Sending...'
+                ) : resendCooldown > 0 ? (
+                  `Resend in ${resendCooldown}s`
+                ) : (
+                  'Resend Verification Email'
+                )}
+              </button>
             ) : (
               <button 
                 onClick={handleSignIn}
