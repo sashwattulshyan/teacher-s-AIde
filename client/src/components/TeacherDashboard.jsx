@@ -150,6 +150,14 @@ const TeacherDashboard = () => {
       <div className="dashboard-header">
         <h1>Teacher Dashboard</h1>
         <div className="header-actions">
+          <a
+            href="https://docs.google.com/forms/d/e/1FAIpQLSfir753R5bPDHkGnGOtKZkW2UI68mxKksstxEzQD199WbWgdQ/viewform?usp=sharing&ouid=102493663411647731230"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bug-report-button"
+          >
+            🐛 Report Bug
+          </a>
         </div>
         <div className="breadcrumb">
           <span 

@@ -571,6 +571,14 @@ const StudentDashboard = () => {
           <h2>{selectedClassroom ? selectedClassroom.name : 'Student Dashboard'}</h2>
         </div>
         <div className="header-actions">
+          <a
+            href="https://docs.google.com/forms/d/e/1FAIpQLSfir753R5bPDHkGnGOtKZkW2UI68mxKksstxEzQD199WbWgdQ/viewform?usp=sharing&ouid=102493663411647731230"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bug-report-button"
+          >
+            🐛 Report Bug
+          </a>
         </div>
         {selectedClassroom && (
           <div className="view-tabs">

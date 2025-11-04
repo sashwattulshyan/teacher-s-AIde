@@ -95,17 +95,18 @@ const EmailVerification = () => {
       const currentUser = auth.currentUser;
       
       if (currentUser && currentUser.emailVerified) {
-        setMessage('Email verified successfully! Redirecting to dashboard...');
+        setMessage('Email verified successfully! Reloading app...');
+        // Reload the entire app
         setTimeout(() => {
-          navigate('/dashboard');
+          window.location.reload();
         }, 1500);
       } else {
         setError('Email is not yet verified. Please check your email and click the verification link.');
+        setLoading(false);
       }
     } catch (err) {
       console.error('Error checking verification status:', err);
       setError('Error checking verification status. Please try again.');
-    } finally {
       setLoading(false);
     }
   };

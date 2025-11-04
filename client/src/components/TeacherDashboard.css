@@ -31,6 +31,28 @@
   gap: 12px;
 }
 
+.bug-report-button {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bug-report-button:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+  color: white;
+  text-decoration: none;
+}
+
 
 .breadcrumb {
   display: flex;
