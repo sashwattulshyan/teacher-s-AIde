@@ -11,6 +11,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Check Firebase Secrets
+        id: check-secrets
+        run: |
+          if [ -z "${{ secrets.VITE_FIREBASE_API_KEY }}" ]; then
+            echo "⚠️  WARNING: Firebase secrets not configured in GitHub Secrets"
+            echo "⚠️  The build will fail. Please add the following secrets:"
+            echo "   - VITE_FIREBASE_API_KEY"
+            echo "   - VITE_FIREBASE_AUTH_DOMAIN"
+            echo "   - VITE_FIREBASE_PROJECT_ID"
+            echo "   - VITE_FIREBASE_STORAGE_BUCKET"
+            echo "   - VITE_FIREBASE_MESSAGING_SENDER_ID"
+            echo "   - VITE_FIREBASE_APP_ID"
+            echo "⚠️  Go to: Settings → Secrets and variables → Actions"
+            exit 1
+          fi
       - name: Build frontend
         working-directory: ./client
         env:
