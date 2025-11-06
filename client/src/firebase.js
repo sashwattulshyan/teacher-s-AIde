@@ -4,6 +4,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, connectAuthEmulator } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 
+// Validate Firebase configuration
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -12,6 +13,21 @@ const firebaseConfig = {
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
+
+// Check if Firebase config is missing or invalid
+const missingConfig = Object.entries(firebaseConfig).filter(([key, value]) => !value || value === 'undefined');
+if (missingConfig.length > 0) {
+  const missingKeys = missingConfig.map(([key]) => key).join(', ');
+  console.error('❌ Firebase configuration error: Missing environment variables:', missingKeys);
+  console.error('Please ensure the following environment variables are set during build:');
+  console.error('  - VITE_FIREBASE_API_KEY');
+  console.error('  - VITE_FIREBASE_AUTH_DOMAIN');
+  console.error('  - VITE_FIREBASE_PROJECT_ID');
+  console.error('  - VITE_FIREBASE_STORAGE_BUCKET');
+  console.error('  - VITE_FIREBASE_MESSAGING_SENDER_ID');
+  console.error('  - VITE_FIREBASE_APP_ID');
+  throw new Error(`Firebase configuration incomplete. Missing: ${missingKeys}`);
+}
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);

@@ -75,28 +75,77 @@ function getGeminiModelOrThrow() {
     err.status = 500;
     throw err;
   }
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const modelName = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
-  return genAI.getGenerativeModel({ model: modelName });
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    // Use gemini-1.5-pro for better quality, fallback to flash for speed
+    const modelName = process.env.GEMINI_MODEL || 'gemini-1.5-pro';
+    return genAI.getGenerativeModel({ model: modelName });
+  } catch (error) {
+    console.error('Error initializing Gemini model:', error);
+    throw new Error(`Failed to initialize AI model: ${error.message}`);
+  }
 }
 
 async function geminiJsonGenerate(prompt) {
-  const model = getGeminiModelOrThrow();
-  const result = await model.generateContent({
-    contents: [{ role: 'user', parts: [{ text: prompt }] }],
-    generationConfig: { responseMimeType: 'application/json' }
-  });
-  const text = result.response?.text() || '';
-  // Try parse as-is first
-  let json = {};
-  try { json = JSON.parse(text); } catch {
-    // Fallback: extract JSON block via regex
-    const match = text.match(/\{[\s\S]*\}/);
-    if (match) {
-      try { json = JSON.parse(match[0]); } catch {}
+  try {
+    const model = getGeminiModelOrThrow();
+    const result = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: { 
+        responseMimeType: 'application/json',
+        temperature: 0.7,
+        topP: 0.8,
+        topK: 40
+      }
+    });
+    
+    if (!result || !result.response) {
+      throw new Error('AI model returned empty response');
+    }
+    
+    const text = result.response.text() || '';
+    
+    if (!text || text.trim() === '') {
+      throw new Error('AI model returned empty text response');
+    }
+    
+    // Try parse as-is first
+    let json = {};
+    try { 
+      json = JSON.parse(text); 
+    } catch (parseError) {
+      // Fallback: extract JSON block via regex
+      const match = text.match(/\{[\s\S]*\}/);
+      if (match) {
+        try { 
+          json = JSON.parse(match[0]); 
+        } catch (innerError) {
+          console.error('Failed to parse AI response as JSON:', {
+            text: text.substring(0, 500),
+            parseError: innerError.message
+          });
+          throw new Error('AI model returned invalid JSON format. Please try again.');
+        }
+      } else {
+        console.error('No JSON found in AI response:', text.substring(0, 500));
+        throw new Error('AI model did not return valid JSON. Please try again.');
+      }
+    }
+    
+    return { rawText: text, json };
+  } catch (error) {
+    console.error('Gemini JSON generation error:', error);
+    // Provide more helpful error messages
+    if (error.message.includes('API key')) {
+      throw new Error('AI service authentication failed. Please check API key configuration.');
+    } else if (error.message.includes('quota') || error.message.includes('rate limit')) {
+      throw new Error('AI service rate limit exceeded. Please wait a moment and try again.');
+    } else if (error.message.includes('safety')) {
+      throw new Error('Content was blocked by AI safety filters. Please try with different content.');
+    } else {
+      throw new Error(`AI generation failed: ${error.message}. Please try again.`);
     }
   }
-  return { rawText: text, json };
 }
 
 // Dev helper: check if Firebase Admin is configured
@@ -124,16 +173,18 @@ router.post(
       }
       return true;
     }).withMessage('Number of questions must be between 1 and 100'),
-    body('questionTypes').custom((value, { req }) => {
+    body('questionTypes').optional().custom((value, { req }) => {
       const lessonType = req.body.lessonType;
-      if ((lessonType === 'quiz' || lessonType === 'test') && (!value || value.trim() === '')) {
+      // Only require questionTypes for quiz and test lesson types
+      if ((lessonType === 'quiz' || lessonType === 'test') && (!value || (typeof value === 'string' && value.trim() === ''))) {
         throw new Error('Question types are required for quiz and test generation');
       }
-      if (value && value.length > 500) {
+      // Only validate length if value is provided and is a string
+      if (value && typeof value === 'string' && value.length > 500) {
         throw new Error('Question types must be 500 characters or less');
       }
       return true;
-    }).withMessage('Question types are required for quiz and test generation'),
+    }),
     body('save').optional().isString().custom((value) => {
       if (value === 'true' || value === 'false' || value === '') {
         return true;
@@ -238,12 +289,13 @@ router.post(
         'Objectives: ' + JSON.stringify(objectives),
         (lessonType === 'reading' && readingUrl ? 'Reading URL provided: ' + readingUrl + '. Use this URL and create content based on it.' : ''),
         (lessonType === 'video' && videoUrl ? 'Video URL provided: ' + videoUrl + '. Use this URL and create content based on it.' : ''),
-        'If lesson is quiz/test, generate exactly ' + numQuestions + ' questions with 4 options each. Use question types: ' + JSON.stringify(questionTypes) + '.',
-        'For tests, ensure timeLimit is set (typically 30-60 minutes). For quizzes, use 15-30 minutes.',
-        'For videos, include a detailed transcript and key points.',
-        'For assignments, include a comprehensive rubric.',
-        'For projects, include specific deliverables and timeline.',
-        'For workshops, include required materials and group size.',
+        // Only include question-related instructions for quiz/test types
+        ((lessonType === 'quiz' || lessonType === 'test') ? `Generate exactly ${numQuestions} questions with 4 options each. Use question types: ${JSON.stringify(questionTypes)}.` : ''),
+        ((lessonType === 'quiz' || lessonType === 'test') ? 'For tests, ensure timeLimit is set (typically 30-60 minutes). For quizzes, use 15-30 minutes.' : ''),
+        (lessonType === 'video' ? 'For videos, include a detailed transcript and key points.' : ''),
+        (lessonType === 'assignment' ? 'For assignments, include a comprehensive rubric.' : ''),
+        (lessonType === 'project' ? 'For projects, include specific deliverables and timeline.' : ''),
+        (lessonType === 'workshop' ? 'For workshops, include required materials and group size.' : ''),
         'JSON shape example (values may be placeholders): ' + JSON.stringify(schema[lessonType]),
         'Source material:\n' + combinedText.substring(0, 8000)
       ].filter(Boolean).join('\n\n');
