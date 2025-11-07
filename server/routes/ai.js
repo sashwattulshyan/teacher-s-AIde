@@ -77,10 +77,10 @@ function getGeminiModelOrThrow() {
   }
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    // Use gemini-pro as default (most stable and widely available)
-    // Alternative models: gemini-1.5-pro, gemini-1.5-flash (if available with your API key)
+    // Use gemini-2.5-flash as default (fast and stable)
+    // Alternative models: gemini-2.5-pro (better quality), gemini-flash-latest, gemini-pro-latest
     // Available models depend on your API key permissions
-    const modelName = process.env.GEMINI_MODEL || 'gemini-pro';
+    const modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
     return genAI.getGenerativeModel({ model: modelName });
   } catch (error) {
     console.error('Error initializing Gemini model:', error);
